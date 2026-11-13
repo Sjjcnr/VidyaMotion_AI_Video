@@ -32,6 +32,7 @@ export function App() {
 
   const {
     exportVideo,
+    runExportBenchmark,
     cancelExport,
     isExporting,
     exportProgress,
@@ -47,10 +48,11 @@ export function App() {
         currentProject,
         setCurrentProject,
         exportVideo,
+        runExportBenchmark,
         loadPreset,
       };
     }
-  }, [currentProject, setCurrentProject, exportVideo, loadPreset]);
+  }, [currentProject, setCurrentProject, exportVideo, runExportBenchmark, loadPreset]);
 
   const handleAspectRatioChange = (aspectRatio: AspectRatio) => {
     setCurrentProject((prev) => ({ ...prev, aspectRatio }));

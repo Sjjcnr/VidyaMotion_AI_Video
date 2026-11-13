@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:export": "node scripts/benchmark-export.js"
   },
   "dependencies": {
     "@google/genai": "^3.1.0",

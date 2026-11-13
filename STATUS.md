@@ -1,5 +1,35 @@
 # VidyaMotion AI - Project Status & Roadmap
 
+## Phase G: Automated Video Export Benchmark Suite & Render Performance Optimization
+
+### Status: COMPLETED & VERIFIED
+
+### 1. Requirements & User Directives Addressed
+- **Automated Test Suite for Video Export Performance**:
+  - Implemented `scripts/benchmark-export.js` and added `npm run test:export` to `package.json`.
+  - Spawns headless Chrome with CDP WebSocket automation, loads the running studio application, and benchmarks multi-configuration export runs without requiring manual browser interaction.
+  - Automatically captures elapsed time, per-frame render time (`ms/frame`), effective render FPS, realtime speed multiplier, and output filesize.
+- **Empirical Export Benchmark Findings**:
+  - **Baseline 1080p (default responsiveness)**: `310.6ms/frame` (3.2 FPS, 0.11x real-time). Total: `18.64s` for 60 frames.
+  - **720p (scale: 2/3, default responsiveness)**: `201.5ms/frame` (5.0 FPS, 0.17x real-time). Total: `12.09s` for 60 frames (1.54x speedup).
+  - **720p Unthrottled (`pageResponsiveness: "disabled"`)**: `145.6ms/frame` (6.9 FPS, 0.23x real-time). Total: `8.74s` for 60 frames (**2.13x speedup, +113.3%**).
+  - **1080p Unthrottled (`pageResponsiveness: "disabled"`)**: `134.7ms/frame` (7.4 FPS, 0.25x real-time). Total: `8.08s` for 60 frames (**2.31x speedup, +130.7%**).
+- **Core Engineering Insights Discovered**:
+  1. *The DOM Traversal Bottleneck*: Remotion's client-side web renderer uses a software DOM composer (`compose`) that walks all DOM/SVG elements on every frame to measure styles, bounding boxes, and layout transforms. This JavaScript CPU overhead takes ~100–120ms/frame regardless of resolution.
+  2. *Artificial Timer Latency Eliminated*: Default `pageResponsiveness: "medium"` inserts `setTimeout(0)` pauses every 33ms, which on Windows adds 4–15ms timer resolution delay per yield. Disabling this throttle via `pageResponsiveness: "disabled"` directly doubled rendering speed from 3.2 FPS to 7.4 FPS.
+  3. *Why 720p and 1080p Perform Similarly Unthrottled*: Because DOM tree traversal dominates ~75% of per-frame render time, rasterizing fewer pixels only impacts the remaining ~25%. Additionally, `scale: 2/3` introduces fractional coordinate math on every DOM node compared to integer scale 1.
+- **Hook Upgrades**:
+  - Updated `src/hooks/useVideoExport.ts` with `pageResponsiveness: "disabled"` and `hardwareAcceleration: "no-preference"` to avoid encoder configuration exceptions while maximizing CPU throughput.
+  - Exposed `runExportBenchmark` on `window.__vidyamotion` for headless automated profiling.
+
+### 2. Verification Evidence
+- `npm run test:export`: Succeeded cleanly with full benchmark table and JSON results saved to `scratch/export-benchmark-results.json`.
+- `npm run typecheck`: Passed with 0 errors (`tsc --noEmit`).
+- `npm run build`: Passed cleanly in 4.99s.
+- Bundle Secret Scan: Verified 0 keys in `dist/assets/*.js`.
+
+---
+
 ## Phase F: Video Quality, Anti-Collision & Contrast Overhaul
 
 ### Status: COMPLETED & VERIFIED

@@ -14,11 +14,35 @@ import { VideoComposition } from "../remotion/VideoComposition";
 
 export type { ExportResolution };
 
+export interface ExportBenchmarkOptions {
+  frames?: number;
+  resolution?: ExportResolution;
+  hardwareAcceleration?: "no-preference" | "prefer-hardware";
+  nativeDimensions?: boolean;
+  pageResponsiveness?: "disabled" | "low" | "medium" | "high";
+}
+
+export interface ExportBenchmarkResult {
+  resolution: string;
+  native: boolean;
+  hardwareAcceleration: string;
+  frames: number;
+  elapsedMs: number;
+  elapsedSec: number;
+  msPerFrame: number;
+  renderFps: number;
+  blobSizeBytes: number;
+}
+
 export interface VideoExportState {
   exportVideo: (
     project: VideoProject,
     resolution?: ExportResolution
   ) => Promise<void>;
+  runExportBenchmark: (
+    project: VideoProject,
+    options?: ExportBenchmarkOptions
+  ) => Promise<ExportBenchmarkResult>;
   cancelExport: () => void;
   isExporting: boolean;
   exportProgress: number; // 0..100
@@ -143,6 +167,8 @@ export function useVideoExport(): VideoExportState {
           inputProps: project,
           container: "mp4",
           scale,
+          hardwareAcceleration: "no-preference",
+          pageResponsiveness: "disabled",
           signal: controller.signal,
           onProgress: (progress) => {
             const percentage = Math.min(
@@ -204,6 +230,69 @@ export function useVideoExport(): VideoExportState {
   );
 
   /**
+   * Run headless/in-browser performance benchmark for video export.
+   */
+  const runExportBenchmark = useCallback(
+    async (
+      project: VideoProject,
+      options: ExportBenchmarkOptions = {}
+    ): Promise<ExportBenchmarkResult> => {
+      const frames = options.frames || 90;
+      const resolution = options.resolution || "720p";
+      const hw = options.hardwareAcceleration || "no-preference";
+      const native = !!options.nativeDimensions;
+      const responsiveness = options.pageResponsiveness ?? "disabled";
+
+      let { width, height } = getCanvasDimensions(project.aspectRatio ?? "16:9");
+      let scale = resolution === "720p" ? 2 / 3 : 1;
+      if (native && resolution === "720p") {
+        width = project.aspectRatio === "9:16" ? 720 : 1280;
+        height = project.aspectRatio === "9:16" ? 1280 : 720;
+        scale = 1;
+      }
+
+      const startTime = performance.now();
+      const renderResult = await renderMediaOnWeb({
+        composition: {
+          id: COMPOSITION_ID,
+          component: VideoComposition,
+          width,
+          height,
+          fps: 30,
+          durationInFrames: frames,
+          defaultProps: project,
+          calculateMetadata: calculateVideoMetadata,
+        },
+        inputProps: project,
+        container: "mp4",
+        scale,
+        frameRange: [0, frames - 1],
+        hardwareAcceleration: hw,
+        pageResponsiveness: responsiveness,
+      });
+
+      const blob = await renderResult.getBlob();
+      const elapsedMs = performance.now() - startTime;
+      const elapsedSec = elapsedMs / 1000;
+      const msPerFrame = elapsedMs / frames;
+      const renderFps = frames / elapsedSec;
+
+      return {
+        resolution,
+        native,
+        hardwareAcceleration: hw,
+        frames,
+        elapsedMs,
+        elapsedSec,
+        msPerFrame,
+        renderFps,
+        blobSizeBytes: blob.size,
+      };
+    },
+    []
+  );
+
+  /**
    * Cancel active video export.
    */
   const cancelExport = useCallback(() => {
@@ -218,6 +307,7 @@ export function useVideoExport(): VideoExportState {
 
   return {
     exportVideo,
+    runExportBenchmark,
     cancelExport,
     isExporting,
     exportProgress,
