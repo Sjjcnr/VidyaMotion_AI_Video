@@ -90,15 +90,31 @@ export async function generateScript(
     let errorCode = "SCRIPT_GENERATION_FAILED";
 
     try {
-      const errBody = (await response.json()) as { error?: string; code?: string };
+      const errBody = (await response.json()) as {
+        error?: string;
+        code?: string;
+        attempts?: readonly string[];
+      };
       if (errBody?.error) {
         errorMessage = errBody.error;
       }
       if (errBody?.code) {
         errorCode = errBody.code;
       }
+      if (Array.isArray(errBody?.attempts) && errBody.attempts.length > 0) {
+        const attemptsSummary = errBody.attempts.join(" | ");
+        errorMessage = `${errorMessage} Models attempted: [${attemptsSummary}].`;
+      }
     } catch {
-      // Non-JSON response
+      // Non-JSON response (e.g. 404 HTML from static dev server or gateway error)
+      if (response.status === 404) {
+        errorMessage =
+          "API route /api/generate-script was not found (HTTP 404). In local development, make sure you are using 'npm run dev' (with built-in Vite API middleware) or 'vercel dev'.";
+        errorCode = "API_ROUTE_NOT_FOUND";
+      } else {
+        errorMessage = `Server returned a non-JSON response with HTTP status ${response.status}.`;
+        errorCode = "NON_JSON_RESPONSE";
+      }
     }
 
     throw new ApiClientError(

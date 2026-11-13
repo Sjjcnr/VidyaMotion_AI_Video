@@ -60,6 +60,7 @@ export async function POST(request: Request): Promise<Response> {
         {
           error: error.message,
           code: error.code,
+          attempts: error.attemptsSummary,
         },
         error.statusCode
       );
