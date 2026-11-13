@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   CheckCircle2,
+  ChevronDown,
   Code2,
   Cpu,
   Layers,
@@ -12,7 +13,7 @@ import {
   Volume2,
   XCircle,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { AspectRatio, LanguageCode, ThemeId } from "../remotion/types";
 import type { GenerationPhase } from "../services/apiClient";
 
@@ -103,6 +104,11 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
   const [customInstruction, setCustomInstruction] = useState(DEFAULT_INSTRUCTION);
   const [showAdvancedPrompt, setShowAdvancedPrompt] = useState(false);
 
+  // Synchronize internal input value with currentTopic prop changes (e.g. presets)
+  useEffect(() => {
+    setInputVal(currentTopic);
+  }, [currentTopic]);
+
   const isGenerating =
     generationStatus === "generating-script" ||
     generationStatus === "synthesizing-audio" ||
@@ -126,32 +132,45 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl backdrop-blur-md">
+    <div className="flex flex-col gap-5 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-5 shadow-xl backdrop-blur-md">
       {/* Header title */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-indigo-400" />
-          <h2 className="text-sm font-semibold tracking-wide text-white uppercase">
-            Topic Prompt & Controls
-          </h2>
+      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-xs font-semibold tracking-wider text-zinc-200 uppercase">
+              Topic Prompt & Controls
+            </h2>
+            <p className="text-[10px] font-medium text-zinc-500">
+              Generate autonomous Remotion animation from any concept
+            </p>
+          </div>
         </div>
         {modelUsed && (
-          <span className="rounded-md border border-slate-700 bg-slate-800/90 px-2.5 py-0.5 text-[10px] font-medium text-slate-300">
-            {fallbackUsed ? "Fallback: " : "Engine: "}
-            <span className="text-indigo-400 font-mono">{modelUsed}</span>
-          </span>
+          <div className="flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-950/80 px-2.5 py-1 text-[10px] font-medium text-zinc-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{fallbackUsed ? "Fallback: " : "Engine: "}</span>
+            <span className="font-mono text-indigo-400">{modelUsed}</span>
+          </div>
         )}
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Topic Input Textarea */}
         <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="topic-input"
-            className="text-xs font-medium text-slate-300"
-          >
-            What educational topic should VidyaMotion explain?
-          </label>
+          <div className="flex items-center justify-between">
+            <label
+              htmlFor="topic-input"
+              className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+            >
+              Prompt Topic
+            </label>
+            <span className="font-mono text-[10px] text-zinc-500">
+              {inputVal.length} chars
+            </span>
+          </div>
           <textarea
             id="topic-input"
             rows={3}
@@ -159,14 +178,14 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
             onChange={handleInputChange}
             disabled={isGenerating}
             placeholder="e.g. How Solar Panels Generate Electricity, QuickSort Algorithm, Ohm's Law..."
-            className="w-full resize-none rounded-xl border border-slate-700 bg-slate-950/90 p-3 text-sm text-slate-100 placeholder-slate-500 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+            className="w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950/80 px-4 py-3 text-sm text-slate-100 placeholder-zinc-500 transition-all duration-150 focus:border-indigo-500/80 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
 
         {/* Suggestion Chips */}
         <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-medium text-slate-400">
-            Topic suggestions:
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            Suggested Topics
           </span>
           <div className="flex flex-wrap gap-1.5">
             {SUGGESTIONS.map((suggestion) => (
@@ -175,7 +194,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                 type="button"
                 disabled={isGenerating}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1 text-[11px] text-slate-300 transition-all hover:border-indigo-500/50 hover:bg-indigo-950/30 hover:text-indigo-300 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+                className="rounded-lg border border-zinc-800/80 bg-zinc-950/60 px-2.5 py-1 text-[11px] font-medium text-zinc-400 transition-all hover:border-zinc-700 hover:bg-zinc-800/60 hover:text-zinc-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
               >
                 {suggestion}
               </button>
@@ -183,48 +202,72 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
           </div>
         </div>
 
-        {/* Aspect Ratio Toggle (16:9 vs 9:16) */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-slate-300">
-            Aspect Ratio & Format:
+        {/* Aspect Ratio Selector */}
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            Aspect Ratio & Format
           </span>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               disabled={isGenerating}
               onClick={() => onAspectRatioChange("16:9")}
-              className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-medium transition-all ${
+              className={`group flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-medium transition-all active:scale-[0.98] ${
                 aspectRatio === "16:9"
-                  ? "border-indigo-500 bg-indigo-950/40 text-indigo-200 shadow-sm"
-                  : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-1 ring-indigo-400/30"
+                  : "border border-zinc-800 bg-zinc-900/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
               }`}
             >
-              <Monitor className="h-4 w-4" />
-              <span>16:9 Landscape</span>
-              <span className="text-[10px] text-slate-500">(1080p)</span>
+              <Monitor
+                className={`h-4 w-4 ${
+                  aspectRatio === "16:9"
+                    ? "text-white"
+                    : "text-zinc-400 group-hover:text-zinc-300"
+                }`}
+              />
+              <span className="font-semibold">16:9 Landscape</span>
+              <span
+                className={`text-[10px] ${
+                  aspectRatio === "16:9" ? "text-indigo-200" : "text-zinc-500"
+                }`}
+              >
+                (1080p)
+              </span>
             </button>
 
             <button
               type="button"
               disabled={isGenerating}
               onClick={() => onAspectRatioChange("9:16")}
-              className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-medium transition-all ${
+              className={`group flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-medium transition-all active:scale-[0.98] ${
                 aspectRatio === "9:16"
-                  ? "border-indigo-500 bg-indigo-950/40 text-indigo-200 shadow-sm"
-                  : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-1 ring-indigo-400/30"
+                  : "border border-zinc-800 bg-zinc-900/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
               }`}
             >
-              <Smartphone className="h-4 w-4" />
-              <span>9:16 Portrait</span>
-              <span className="text-[10px] text-slate-500">(Shorts)</span>
+              <Smartphone
+                className={`h-4 w-4 ${
+                  aspectRatio === "9:16"
+                    ? "text-white"
+                    : "text-zinc-400 group-hover:text-zinc-300"
+                }`}
+              />
+              <span className="font-semibold">9:16 Portrait</span>
+              <span
+                className={`text-[10px] ${
+                  aspectRatio === "9:16" ? "text-indigo-200" : "text-zinc-500"
+                }`}
+              >
+                (Shorts)
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Visual Theme Selector */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-slate-300">
-            Visual Color Theme:
+        {/* Visual Color Theme Selector */}
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            Color Palette Theme
           </span>
           <div className="grid grid-cols-2 gap-2">
             {THEMES.map((t) => {
@@ -235,22 +278,30 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                   type="button"
                   disabled={isGenerating}
                   onClick={() => onThemeChange(t.id)}
-                  className={`flex flex-col gap-1 rounded-xl border p-2 text-left transition-all ${
+                  className={`flex flex-col gap-1 rounded-xl p-2.5 text-left transition-all active:scale-[0.98] ${
                     isSelected
-                      ? "border-indigo-500 bg-slate-950 text-white shadow-sm ring-1 ring-indigo-500/30"
-                      : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-1 ring-indigo-400/30"
+                      : "border border-zinc-800 bg-zinc-900/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-slate-200">
+                    <span
+                      className={`text-xs font-semibold ${
+                        isSelected ? "text-white" : "text-zinc-200"
+                      }`}
+                    >
                       {t.name}
                     </span>
                     <span
-                      className="h-3 w-3 rounded-full border border-slate-700"
+                      className="h-2.5 w-2.5 rounded-full ring-2 ring-zinc-900 shadow-sm"
                       style={{ backgroundColor: t.accent }}
                     />
                   </div>
-                  <span className="text-[10px] text-slate-500 truncate">
+                  <span
+                    className={`text-[10px] truncate ${
+                      isSelected ? "text-indigo-100" : "text-zinc-500"
+                    }`}
+                  >
                     {t.desc}
                   </span>
                 </button>
@@ -259,62 +310,97 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
           </div>
         </div>
 
-        {/* Mandatory Long-Code Directive & Custom Prompt Box */}
-        <div className="flex flex-col gap-1.5">
+        {/* Expandable Custom Instructions & Directive Panel */}
+        <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-300">
-              <Code2 className="h-3.5 w-3.5 text-indigo-400" />
-              <span>Code Generation Directives:</span>
-            </span>
             <button
               type="button"
               onClick={() => setShowAdvancedPrompt((prev) => !prev)}
-              className="text-[11px] text-indigo-400 hover:underline"
+              className="group flex items-center gap-2 text-left focus:outline-none"
             >
-              {showAdvancedPrompt ? "Hide Directives" : "Customize Directive"}
+              <div className="flex h-5 w-5 items-center justify-center rounded-md bg-zinc-800/80 text-zinc-400 transition-colors group-hover:text-zinc-200">
+                <Code2 className="h-3 w-3" />
+              </div>
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider transition-colors group-hover:text-zinc-300">
+                Code Generation Directives
+              </span>
+              <ChevronDown
+                className={`h-3.5 w-3.5 text-zinc-500 transition-transform duration-200 group-hover:text-zinc-300 ${
+                  showAdvancedPrompt ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAdvancedPrompt((prev) => !prev)}
+              className="text-[11px] font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+            >
+              {showAdvancedPrompt ? "Collapse" : "Customize"}
             </button>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-2.5 text-[11px] text-slate-400 leading-relaxed">
-            <div className="flex items-center gap-1.5 text-indigo-300 font-medium mb-1">
-              <span>⚡ Active Directive:</span>
-              <span className="rounded bg-indigo-500/10 px-1.5 py-0.2 text-[10px] text-indigo-400">
-                Mandatory Long Code · Anti-PPT Mode
+          <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/80 p-3 text-xs transition-all">
+            <div className="mb-2 flex items-center justify-between gap-2 border-b border-zinc-800/60 pb-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                  Active Directive
+                </span>
+              </div>
+              <span className="rounded border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 font-mono text-[10px] font-medium text-indigo-400">
+                Anti-PPT Mode (200-450+ TSX lines)
               </span>
             </div>
+
             {showAdvancedPrompt ? (
-              <textarea
-                rows={3}
-                value={customInstruction}
-                onChange={(e) => setCustomInstruction(e.target.value)}
-                disabled={isGenerating}
-                placeholder="Custom instruction appended to every Remotion code generation request..."
-                className="w-full mt-1.5 resize-none rounded-lg border border-slate-700 bg-slate-900 p-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
-              />
+              <div className="flex flex-col gap-2">
+                <textarea
+                  rows={3}
+                  value={customInstruction}
+                  onChange={(e) => setCustomInstruction(e.target.value)}
+                  disabled={isGenerating}
+                  placeholder="Custom directive appended to Remotion code generation request..."
+                  className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-900/90 p-2.5 font-mono text-xs text-zinc-200 placeholder-zinc-500 transition-colors focus:border-indigo-500/80 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:opacity-50"
+                />
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-zinc-500">
+                    Enforces programmatic SVG & math animations
+                  </span>
+                  {customInstruction !== DEFAULT_INSTRUCTION && (
+                    <button
+                      type="button"
+                      onClick={() => setCustomInstruction(DEFAULT_INSTRUCTION)}
+                      className="text-indigo-400 transition-colors hover:text-indigo-300"
+                    >
+                      Reset to Default
+                    </button>
+                  )}
+                </div>
+              </div>
             ) : (
-              <p className="line-clamp-2 text-slate-400 italic">
+              <p className="line-clamp-2 font-mono text-[11px] leading-relaxed text-zinc-400 italic">
                 "{customInstruction}"
               </p>
             )}
           </div>
         </div>
 
-        {/* Generation Action Button & Progress */}
+        {/* Primary Action Button ('Generate Video') & Status */}
         <div className="mt-1 flex flex-col gap-3">
           {isGenerating ? (
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 disabled
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/20"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600/90 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 cursor-wait"
               >
-                <Loader2 className="h-4 w-4 animate-spin text-indigo-200" />
+                <Loader2 className="h-4 w-4 animate-spin text-white" />
                 <span>Generating Video... {generationProgress}%</span>
               </button>
               <button
                 type="button"
                 onClick={onCancelGeneration}
-                className="flex items-center justify-center rounded-xl border border-rose-500/40 bg-rose-950/40 px-3 py-3 text-xs font-medium text-rose-300 hover:bg-rose-900/60"
+                className="flex items-center justify-center rounded-xl border border-rose-500/30 bg-rose-950/40 px-3.5 py-3 text-xs font-semibold text-rose-300 transition-colors hover:bg-rose-900/60 hover:text-rose-200 active:scale-[0.98]"
                 title="Cancel Generation"
               >
                 <XCircle className="h-4 w-4" />
@@ -324,76 +410,83 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
             <button
               type="submit"
               disabled={!inputVal.trim()}
-              className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition-all hover:bg-indigo-500 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+              className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition-all duration-150 hover:bg-indigo-500 hover:shadow-indigo-500/35 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
             >
-              <Sparkles className="h-4 w-4" />
-              <span>Generate Autonomous Video</span>
+              <Sparkles className="h-4 w-4 text-indigo-200 transition-transform duration-200 group-hover:scale-110" />
+              <span>Generate Video</span>
             </button>
           )}
 
-          {/* Animated Multi-Step Progress Tracker */}
+          {/* Progress Feedback: Sleek two-tone progress bar with percentage & animated pulse */}
           {isGenerating && (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/90 p-3.5">
-              <div className="mb-2 flex items-center justify-between text-xs">
-                <span className="font-medium text-indigo-300">
-                  {statusMessage}
-                </span>
-                <span className="font-mono text-indigo-400">
+            <div className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-950/90 p-4 shadow-inner">
+              {/* Status Header with Animated Pulse */}
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500" />
+                  </span>
+                  <span className="font-medium text-zinc-200">
+                    {statusMessage}
+                  </span>
+                </div>
+                <span className="font-mono text-xs font-semibold text-indigo-400 tabular-nums">
                   {generationProgress}%
                 </span>
               </div>
 
-              {/* Progress bar line */}
-              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+              {/* Sleek Two-Tone Progress Bar */}
+              <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800/80">
                 <div
-                  className="h-full bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-400 transition-all duration-300 ease-out"
-                  style={{ width: `${generationProgress}%` }}
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-indigo-400 to-emerald-400 transition-all duration-300 ease-out shadow-[0_0_12px_rgba(99,102,241,0.5)]"
+                  style={{ width: `${Math.max(generationProgress, 2)}%` }}
                 />
               </div>
 
               {/* 4 sequential milestone badges */}
-              <div className="mt-3 grid grid-cols-4 gap-1 text-[10px]">
+              <div className="grid grid-cols-4 gap-1.5 pt-1 text-[10px]">
                 <div
-                  className={`flex flex-col items-center gap-1 text-center ${
+                  className={`flex flex-col items-center gap-1 rounded-lg p-1.5 text-center transition-colors ${
                     generationStatus === "generating-script"
-                      ? "text-indigo-400 font-bold"
+                      ? "border border-indigo-500/40 bg-indigo-500/10 font-bold text-indigo-400"
                       : generationProgress > 25
-                      ? "text-slate-400 font-normal"
-                      : "text-slate-600"
+                      ? "font-medium text-zinc-400"
+                      : "text-zinc-600"
                   }`}
                 >
                   <Cpu className="h-3.5 w-3.5" />
                   <span>1. Script</span>
                 </div>
                 <div
-                  className={`flex flex-col items-center gap-1 text-center ${
+                  className={`flex flex-col items-center gap-1 rounded-lg p-1.5 text-center transition-colors ${
                     generationStatus === "synthesizing-audio"
-                      ? "text-indigo-400 font-bold"
+                      ? "border border-indigo-500/40 bg-indigo-500/10 font-bold text-indigo-400"
                       : generationProgress > 85
-                      ? "text-slate-400 font-normal"
-                      : "text-slate-600"
+                      ? "font-medium text-zinc-400"
+                      : "text-zinc-600"
                   }`}
                 >
                   <Volume2 className="h-3.5 w-3.5" />
                   <span>2. Voice & Code</span>
                 </div>
                 <div
-                  className={`flex flex-col items-center gap-1 text-center ${
+                  className={`flex flex-col items-center gap-1 rounded-lg p-1.5 text-center transition-colors ${
                     generationStatus === "building-timeline"
-                      ? "text-indigo-400 font-bold"
+                      ? "border border-indigo-500/40 bg-indigo-500/10 font-bold text-indigo-400"
                       : generationProgress >= 95
-                      ? "text-slate-400 font-normal"
-                      : "text-slate-600"
+                      ? "font-medium text-zinc-400"
+                      : "text-zinc-600"
                   }`}
                 >
                   <Layers className="h-3.5 w-3.5" />
                   <span>3. Time-Lock</span>
                 </div>
                 <div
-                  className={`flex flex-col items-center gap-1 text-center ${
+                  className={`flex flex-col items-center gap-1 rounded-lg p-1.5 text-center transition-colors ${
                     generationProgress >= 100
-                      ? "text-emerald-400 font-bold"
-                      : "text-slate-600"
+                      ? "border border-emerald-500/40 bg-emerald-500/10 font-bold text-emerald-400"
+                      : "text-zinc-600"
                   }`}
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
@@ -405,22 +498,22 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
 
           {/* Error Banner with Offline Showcase Rescue Action */}
           {error && (
-            <div className="flex flex-col gap-2 rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs text-rose-200">
-              <div className="flex items-start gap-2">
+            <div className="flex flex-col gap-2 rounded-xl border border-rose-500/30 bg-rose-950/30 p-3.5 text-xs text-rose-200 backdrop-blur-sm">
+              <div className="flex items-start gap-2.5">
                 <AlertCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-semibold text-rose-300">Generation Notice</p>
                   <p className="mt-0.5 text-rose-200/90 leading-relaxed">{error}</p>
                 </div>
               </div>
-              <div className="mt-1 flex items-center justify-between border-t border-rose-900/50 pt-2">
+              <div className="mt-1 flex items-center justify-between border-t border-rose-900/50 pt-2.5">
                 <span className="text-[11px] text-rose-300/80">
                   Featured Offline Demos are ready:
                 </span>
                 <button
                   type="button"
                   onClick={() => onLoadPreset("binary-search-trees")}
-                  className="rounded-lg bg-indigo-500/20 px-2.5 py-1 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-500/30"
+                  className="rounded-lg border border-indigo-500/30 bg-indigo-500/20 px-2.5 py-1 text-[11px] font-semibold text-indigo-300 transition-colors hover:bg-indigo-500/30 active:scale-95"
                 >
                   Load BST Demo
                 </button>
@@ -431,10 +524,10 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
       </form>
 
       {/* Privacy Notice */}
-      <div className="mt-1 flex items-start gap-2 rounded-xl border border-slate-800/80 bg-slate-950/70 p-3 text-[11px] text-slate-400">
+      <div className="mt-1 flex items-start gap-2.5 rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-3 text-[11px] text-zinc-400">
         <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
         <p className="leading-relaxed">
-          <strong className="font-semibold text-slate-300">
+          <strong className="font-semibold text-zinc-300">
             Privacy Notice:
           </strong>{" "}
           Powered by Gemini Free Tier — do not enter private, confidential, or

@@ -9,8 +9,8 @@
   body,
   #root {
     min-height: 100%;
-    background-color: #020617;
-    color: #f8fafc;
+    background-color: #0A0D14;
+    color: #F1F5F9;
     font-family:
       "Inter",
       "Noto Sans Devanagari",
@@ -20,24 +20,26 @@
       BlinkMacSystemFont,
       "Segoe UI",
       sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Subtle dark scrollbar for studio panels */
+/* Refined slate/zinc scrollbars for studio panels */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #0A0D14;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #27272a;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3f3f46;
 }
