@@ -11,7 +11,7 @@ export const DEFAULT_VIDEO_PROJECT: VideoProject = {
   id: "default-solar-panels",
   topic: "How Solar Panels Generate Electricity",
   language: "en-IN",
-  theme: "cyber_dark",
+  theme: "clean_modern",
   aspectRatio: "16:9",
   fps: 30,
   scenes: [

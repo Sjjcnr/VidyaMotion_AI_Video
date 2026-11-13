@@ -77,16 +77,16 @@ export const THEME_COLOR_TOKENS: Record<
 };
 
 export const STAGE2_SYSTEM_PROMPT = `You are the Principal Creative Technologist and Remotion Code Architect for "VidyaMotion AI".
-Your mission is to write clean, high-performance, self-contained Remotion React TSX code for a single educational video scene.
+Your mission is to write high-fidelity, production-grade, self-contained Remotion React TSX code for a single educational video scene.
 
 ### ENVIRONMENT & SCOPE:
 The code runs in an isolated browser runner inside @remotion/player and is exported directly via @remotion/web-renderer.
 Available variables in scope:
 - React (standard React hooks: useState, useMemo)
 - Remotion (Remotion hooks and primitives: useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill, Sequence)
-- Lucide (all Lucide React icons as Lucide.IconName, e.g. <Lucide.Sparkles />, <Lucide.Atom />, <Lucide.Cpu />, <Lucide.Zap />, <Lucide.Sun />, <Lucide.Activity />, <Lucide.Leaf />, <Lucide.CheckCircle />)
+- Lucide (all Lucide React icons as Lucide.IconName, e.g. <Lucide.Sparkles />, <Lucide.Atom />, <Lucide.Cpu />, <Lucide.Zap />, <Lucide.Sun />, <Lucide.Activity />, <Lucide.Leaf />, <Lucide.CheckCircle />, <Lucide.ArrowRight />, <Lucide.Network />)
 - palette: theme colors object { background, cardBg, cardBorder, textPrimary, textSecondary, accentDefault, glow }
-- accentColor: hex string (e.g. "#06B6D4")
+- accentColor: hex string (e.g. "#6366F1")
 - isPortrait: boolean (true when canvas is 1080x1920 portrait; false when 1920x1080 landscape)
 - frame: current frame number (number)
 - fps: composition frames per second (30)
@@ -96,24 +96,31 @@ Available variables in scope:
 - narrationScript: voiceover narration string for context
 
 ### MANDATORY DESIGN & CODE RULES:
-1. Return ONLY pure TSX code defining and exporting a default React component:
+1. RETURN ONLY RAW EXECUTABLE TSX CODE:
    export default function GeneratedScene() { ... }
-   DO NOT include import statements (React and Remotion are already injected).
+   DO NOT include import statements (React, Remotion, Lucide are already injected).
    DO NOT wrap with markdown fences (\`\`\`tsx). Return raw executable TSX only.
-2. DURATION-AGNOSTIC ANIMATION:
+
+2. GENERATE AS LONG CODE AS POSSIBLE (MINIMUM 200 TO 450+ LINES):
+   Write deep, detailed, comprehensive animation code. Never output brief or truncated stubs.
+   Include rich multi-layered SVG vector geometry, labeled nodes, moving particles, dynamic connection paths, and mathematical formulas.
+
+3. STRICT ZERO-PPT / ANTI-SLIDE POLICY:
+   ABSOLUTELY NO PowerPoint-style bullet point cards, slide decks, or text-heavy card lists!
+   The voiceover already handles the narration!
+   The visual canvas MUST be a programmatic motion graphic — an interactive animated diagram, biological/chemical structure, algorithmic tree/graph simulation, physics schematic, or engineering flow.
+
+4. FULL VERTICAL CANVAS UTILIZATION IN 9:16 PORTRAIT (1080x1920):
+   - In portrait mode, the screen height is 1920px!
+   - NEVER make a small 360px landscape box that leaves the top and bottom empty!
+   - Make the central visual diagram TALL: height: isPortrait ? "950px" : "500px". In portrait, use a tall SVG viewBox (e.g. "0 0 800 1100" or "0 0 900 1200") so the graphic fills the vertical space.
+   - Stack vertically: Top header (0-280px), tall central diagram/mechanism (280-1450px), live metrics/formula pill (1450-1650px), karaoke subtitles clearance (1650-1920px).
+
+5. DURATION-AGNOSTIC ANIMATION:
    Animations MUST scale relative to 'durationInFrames' or use 'frame' with 'Remotion.spring({ frame, fps })' and 'Remotion.interpolate()'.
-   NEVER assume a fixed 150 frames. The voiceover might be 90 frames or 360 frames.
-3. CANVAS & SAFE MARGINS:
-   Canvas is 1920x1080 (16:9) or 1080x1920 (9:16 portrait).
-   Keep a minimum 64px padding on sides and 160px clearance from the bottom to prevent overlapping with the bottom karaoke subtitles.
-4. RICH TOPIC-SPECIFIC VISUALS (CRITICAL):
-   Do NOT make a boring text slide!
-   Every scene MUST include an animated visual representation of the concept:
-   - An animated SVG diagram (e.g. chemical reactions, circuit schematics, anatomical structures, orbital mechanics, binary tree nodes).
-   - Dynamic geometric cards with animated SVG connector lines.
-   - Interactive data counters using interpolate(frame, [0, 30], [0, target]).
-   - Floating illustrative icons, animated progress bars, or pulse waves.
-5. STRICT WEB-RENDERER & CANVAS EXPORT COMPATIBILITY:
+   NEVER assume a fixed 150 frames. The voiceover might be 90 frames or 400 frames.
+
+6. STRICT WEB-RENDERER & CANVAS EXPORT COMPATIBILITY:
    The video will be exported to MP4 via @remotion/web-renderer which rasterizes the DOM to an HTML canvas:
    - Use pure inline styles with standard '#hex' and 'rgba()' color values.
    - NEVER use Tailwind v4 'oklch()' or CSS variables.
@@ -123,90 +130,153 @@ Available variables in scope:
    - Box-shadows must have at most 3 arguments: '0 4px 12px rgba(0,0,0,0.5)'.
    - NEVER use window, document, fetch, XMLHttpRequest, localStorage, setTimeout, setInterval, or eval.`;
 
-export const FEW_SHOT_CODE_EXAMPLES = `// Example 1: Topic-specific Animated SVG Diagram (e.g. Photovoltaic Cell)
-function SolarCellDiagram({ frame, fps, durationInFrames, accentColor, palette, isPortrait }) {
+export const FEW_SHOT_CODE_EXAMPLES = `// Example: Topic-specific Animated SVG Visual (Photovoltaic Cell & Electron Flow)
+export default function GeneratedScene() {
+  const frame = Remotion.useCurrentFrame();
+  const { fps, width, height } = Remotion.useVideoConfig();
+  const isPortrait = height > width;
+
   const intro = Remotion.spring({ frame, fps, config: { damping: 14 } });
   const photonProgress = (frame % 45) / 45;
   const electronFlow = (frame % 60) / 60;
-  
+  const pulse = Math.sin(frame * 0.1) * 4;
+
+  const accent = accentColor || "#6366F1";
+  const bgSurface = palette?.cardBg || "rgba(15, 23, 42, 0.9)";
+  const borderCol = palette?.cardBorder || "rgba(99, 102, 241, 0.3)";
+
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: isPortrait ? "column" : "row",
-      width: "100%",
-      height: "100%",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: isPortrait ? "40px 24px" : "60px 80px",
-      boxSizing: "border-box"
-    }}>
-      <div style={{ flex: 1, maxWidth: isPortrait ? "100%" : "45%" }}>
-        <div style={{
-          display: "inline-block",
-          padding: "6px 14px",
-          borderRadius: "999px",
-          backgroundColor: accentColor + "22",
-          border: "1px solid " + accentColor + "66",
-          color: accentColor,
-          fontSize: "18px",
-          fontWeight: 700,
-          marginBottom: "16px"
-        }}>
-          PHOTOVOLTAIC PROCESS
-        </div>
-        <h1 style={{
-          fontSize: isPortrait ? "42px" : "56px",
-          fontWeight: 800,
-          color: palette.textPrimary,
-          margin: "0 0 16px 0",
-          lineHeight: 1.15
-        }}>
-          Converting Light into Current
-        </h1>
-        <p style={{
-          fontSize: isPortrait ? "22px" : "26px",
-          color: palette.textSecondary,
-          margin: 0,
-          lineHeight: 1.5
-        }}>
-          Photons excite electrons across the silicon P-N junction, creating an electric current.
-        </p>
-      </div>
-      
-      <div style={{
-        flex: 1,
-        width: "100%",
-        maxWidth: isPortrait ? "100%" : "48%",
-        height: isPortrait ? "360px" : "480px",
-        backgroundColor: palette.cardBg,
-        border: "1px solid " + palette.cardBorder,
-        borderRadius: "24px",
-        padding: "24px",
-        boxSizing: "border-box",
-        position: "relative",
+    <div
+      style={{
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        transform: "scale(" + intro + ")"
-      }}>
-        <svg viewBox="0 0 500 400" style={{ width: "100%", height: "100%" }}>
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        justifyContent: "space-between",
+        padding: isPortrait ? "60px 48px 300px 48px" : "60px 80px 200px 80px",
+        boxSizing: "border-box",
+        fontFamily: "Inter, sans-serif",
+      }}
+    >
+      {/* Top Header & Concept Pill */}
+      <div style={{ textAlign: "center", marginBottom: isPortrait ? "24px" : "16px" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "6px 16px",
+            borderRadius: "999px",
+            backgroundColor: accent + "22",
+            border: "1px solid " + accent + "66",
+            color: accent,
+            fontSize: isPortrait ? "18px" : "16px",
+            fontWeight: 700,
+            marginBottom: "12px",
+          }}
+        >
+          <Lucide.Sun size={isPortrait ? 20 : 18} color={accent} />
+          <span>PHOTOVOLTAIC PROCESS</span>
+        </div>
+        <h1
+          style={{
+            fontSize: isPortrait ? "44px" : "52px",
+            fontWeight: 800,
+            color: palette?.textPrimary || "#F8FAFC",
+            margin: "0 0 8px 0",
+            lineHeight: 1.15,
+          }}
+        >
+          {heading}
+        </h1>
+        {subtext && (
+          <p
+            style={{
+              fontSize: isPortrait ? "22px" : "24px",
+              color: palette?.textSecondary || "#94A3B8",
+              margin: 0,
+              lineHeight: 1.4,
+            }}
+          >
+            {subtext}
+          </p>
+        )}
+      </div>
+
+      {/* Central Large Technical Visual Canvas - Vertically Expanded in Portrait */}
+      <div
+        style={{
+          flex: 1,
+          width: "100%",
+          maxHeight: isPortrait ? "1050px" : "540px",
+          backgroundColor: bgSurface,
+          border: "1px solid " + borderCol,
+          borderRadius: "28px",
+          padding: isPortrait ? "32px 24px" : "28px 40px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          transform: "scale(" + intro + ")",
+          boxShadow: "0 16px 40px rgba(0,0,0,0.4)",
+        }}
+      >
+        <svg
+          viewBox={isPortrait ? "0 0 800 1000" : "0 0 1000 480"}
+          style={{ width: "100%", height: "100%" }}
+        >
           <defs>
             <linearGradient id="nType" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#0284C7" stopOpacity="0.8" />
+              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#0284C7" stopOpacity="0.85" />
             </linearGradient>
             <linearGradient id="pType" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FB7185" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#E11D48" stopOpacity="0.8" />
+              <stop offset="0%" stopColor="#818CF8" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#4F46E5" stopOpacity="0.85" />
+            </linearGradient>
+            <linearGradient id="sunRay" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#FDE047" />
+              <stop offset="100%" stopColor="#EAB308" />
             </linearGradient>
           </defs>
-          <rect x="50" y="100" width="400" height="80" rx="8" fill="url(#nType)" stroke="#38BDF8" strokeWidth="2" />
-          <text x="70" y="145" fill="#FFFFFF" fontSize="18" fontWeight="700">N-Type Silicon (Free Electrons)</text>
-          <line x1="50" y1="180" x2="450" y2="180" stroke="#FDE047" strokeWidth="3" strokeDasharray="8 6" />
-          <rect x="50" y="180" width="400" height="80" rx="8" fill="url(#pType)" stroke="#FB7185" strokeWidth="2" />
-          <text x="70" y="225" fill="#FFFFFF" fontSize="18" fontWeight="700">P-Type Silicon (Holes)</text>
-          <circle cx="150" cy={70 + photonProgress * 60} r="6" fill="#FDE047" />
-          <circle cx={100 + electronFlow * 300} cy="140" r="8" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2" />
+
+          {/* Sunlight Photon Rays */}
+          <line x1="120" y1="30" x2="260" y2={120 + photonProgress * 20} stroke="url(#sunRay)" strokeWidth="4" strokeDasharray="8 6" />
+          <line x1="360" y1="20" x2="420" y2={120 + photonProgress * 20} stroke="url(#sunRay)" strokeWidth="4" strokeDasharray="8 6" />
+          <line x1="600" y1="30" x2="540" y2={120 + photonProgress * 20} stroke="url(#sunRay)" strokeWidth="4" strokeDasharray="8 6" />
+          <circle cx="260" cy={120 + photonProgress * 20} r={6 + pulse * 0.3} fill="#FDE047" />
+          <circle cx="420" cy={120 + photonProgress * 20} r={6 + pulse * 0.3} fill="#FDE047" />
+          <circle cx="540" cy={120 + photonProgress * 20} r={6 + pulse * 0.3} fill="#FDE047" />
+
+          {/* N-Type Semiconductor Layer */}
+          <rect x="60" y="160" width={isPortrait ? "680" : "880"} height="110" rx="14" fill="url(#nType)" stroke="#38BDF8" strokeWidth="2.5" />
+          <text x="90" y="225" fill="#FFFFFF" fontSize="22" fontWeight="700">N-Type Silicon Layer (Free Mobile Electrons e⁻)</text>
+
+          {/* P-N Depletion Junction */}
+          <line x1="60" y1="270" x2={isPortrait ? "740" : "940"} y2="270" stroke="#FDE047" strokeWidth="4" strokeDasharray="10 8" />
+          <text x={isPortrait ? "400" : "500"} y="265" fill="#FDE047" fontSize="16" fontWeight="bold" textAnchor="middle">ELECTRIC FIELD DEPLETION ZONE</text>
+
+          {/* P-Type Semiconductor Layer */}
+          <rect x="60" y="270" width={isPortrait ? "680" : "880"} height="110" rx="14" fill="url(#pType)" stroke="#818CF8" strokeWidth="2.5" />
+          <text x="90" y="335" fill="#FFFFFF" fontSize="22" fontWeight="700">P-Type Silicon Layer (Electron Holes h⁺)</text>
+
+          {/* Flowing Electrons */}
+          <circle cx={140 + electronFlow * (isPortrait ? 520 : 700)} cy="215" r="9" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2.5" />
+          <circle cx={240 + electronFlow * (isPortrait ? 420 : 600)} cy="215" r="9" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2.5" />
+
+          {/* Circuit Wire Loop & Current Meter */}
+          <path
+            d={isPortrait ? "M 60 215 L 20 215 L 20 620 L 400 620 L 400 780" : "M 60 215 L 20 215 L 20 420 L 500 420 L 940 420 L 940 325"}
+            fill="none"
+            stroke="#94A3B8"
+            strokeWidth="3.5"
+            strokeDasharray="12 8"
+          />
+          <circle cx={isPortrait ? "400" : "500"} cy={isPortrait ? "620" : "420"} r="34" fill="#0F172A" stroke={accent} strokeWidth="3" />
+          <text x={isPortrait ? "400" : "500"} y={isPortrait ? "626" : "426"} fill="#F8FAFC" fontSize="16" fontWeight="bold" textAnchor="middle">
+            {(electronFlow * 24.5).toFixed(1)} A
+          </text>
         </svg>
       </div>
     </div>

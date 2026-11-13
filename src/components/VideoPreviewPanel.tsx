@@ -188,16 +188,16 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-2xl backdrop-blur-md"
+      className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl backdrop-blur-md"
     >
       {/* Top Bar: Title & Stats */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-2">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
           <h2 className="text-sm font-semibold tracking-wide text-white">
-            Remotion Dynamic Preview
+            Remotion Player Preview
           </h2>
-          <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-cyan-300">
+          <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-indigo-300">
             {width}x{height} ({aspectRatio})
           </span>
         </div>
@@ -206,8 +206,8 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
         <div className="flex items-center gap-2">
           {isExporting ? (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-xl border border-cyan-500/50 bg-cyan-950/60 px-3 py-1.5 text-xs font-semibold text-cyan-200">
-                <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
+              <div className="flex items-center gap-2 rounded-xl border border-indigo-500/50 bg-indigo-950/60 px-3 py-1.5 text-xs font-semibold text-indigo-200">
+                <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping" />
                 <span>Exporting MP4: {exportProgress}%</span>
               </div>
               <button
@@ -230,7 +230,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
               type="button"
               disabled={!canExport}
               onClick={handleExportClick}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:from-emerald-400 hover:to-teal-500 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-indigo-500 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
               title={
                 canExport
                   ? "Export full video with voiceover & karaoke captions entirely inside your browser via WebCodecs"
@@ -245,14 +245,14 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
       </div>
 
       {/* Video Viewport Stage */}
-      <div className="relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950 p-2">
+      <div className="relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950 p-2 min-h-[380px]">
         <div
           className="relative transition-all duration-300 ease-in-out"
           style={{
-            width: isPortrait ? "320px" : "100%",
-            maxWidth: isPortrait ? "340px" : "100%",
+            width: isPortrait ? "360px" : "100%",
+            maxWidth: isPortrait ? "380px" : "100%",
             aspectRatio: isPortrait ? "9 / 16" : "16 / 9",
-            maxHeight: "560px",
+            maxHeight: isPortrait ? "640px" : "540px",
           }}
         >
           <Player
@@ -276,7 +276,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
       </div>
 
       {/* Sibling Custom Playback Controls & Scrubber */}
-      <div className="mt-4 flex flex-col gap-2.5 rounded-xl border border-slate-800/80 bg-slate-950/80 p-3">
+      <div className="mt-4 flex flex-col gap-2.5 rounded-xl border border-slate-800 bg-slate-950/90 p-3">
         {/* Timeline Scrubber Slider */}
         <div className="flex items-center gap-3">
           <span className="w-12 font-mono text-xs text-slate-300 text-right">
@@ -289,7 +289,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
             value={currentFrame}
             onChange={handleScrubberChange}
             aria-label="Timeline scrubber"
-            className="h-1.5 flex-1 cursor-pointer appearance-none rounded-lg bg-slate-800 accent-cyan-400 transition-all hover:bg-slate-700"
+            className="h-1.5 flex-1 cursor-pointer appearance-none rounded-lg bg-slate-800 accent-indigo-500 transition-all hover:bg-slate-700"
           />
           <span className="w-12 font-mono text-xs text-slate-500">
             {formatTime(totalFrames, 30)}
@@ -303,13 +303,13 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-500 text-slate-950 transition-all hover:bg-cyan-400 active:scale-95 shadow-sm shadow-cyan-500/20"
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white transition-all hover:bg-indigo-500 active:scale-95 shadow-sm"
               title={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
-                <Pause className="h-4 w-4 fill-slate-950" />
+                <Pause className="h-4 w-4 fill-white" />
               ) : (
-                <Play className="h-4 w-4 fill-slate-950 ml-0.5" />
+                <Play className="h-4 w-4 fill-white ml-0.5" />
               )}
             </button>
 
@@ -333,7 +333,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
                 {isMuted || volume === 0 ? (
                   <VolumeX className="h-4 w-4 text-rose-400" />
                 ) : (
-                  <Volume2 className="h-4 w-4 text-cyan-400" />
+                  <Volume2 className="h-4 w-4 text-indigo-400" />
                 )}
               </button>
               <label htmlFor={volumeSliderId} className="sr-only">
@@ -348,7 +348,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
                 aria-label="Volume slider"
-                className="w-16 h-1 cursor-pointer appearance-none rounded-lg bg-slate-800 accent-cyan-400"
+                className="w-16 h-1 cursor-pointer appearance-none rounded-lg bg-slate-800 accent-indigo-500"
               />
             </div>
           </div>
@@ -356,7 +356,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
           {/* Right: Technical Stats Pill & Fullscreen */}
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1 text-[11px] font-mono text-slate-400">
-              Frame: <span className="text-cyan-300">{currentFrame}</span> /{" "}
+              Frame: <span className="text-indigo-300">{currentFrame}</span> /{" "}
               {totalFrames} · 30 FPS
             </span>
 
@@ -387,28 +387,27 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
         </div>
       )}
 
-      {/* WebCodecs Capability Notice / Expo Recommendation */}
+      {/* WebCodecs Capability Notice */}
       {!canExport ? (
         <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 p-3 text-xs text-amber-200">
           <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong>Client-Side Export Notice:</strong> In-browser video rendering
-            requires WebCodecs API support. For the Tech Expo booth, please run
+            requires WebCodecs API support. For optimal rendering, please run
             in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.
           </p>
         </div>
       ) : (
         <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
           <span className="flex items-center gap-1.5">
-            <Info className="h-3 w-3 text-cyan-400" />
+            <Info className="h-3 w-3 text-indigo-400" />
             <span>
-              Approach 2 Active: 100% Client-Side WebCodecs Video Export (No
-              Server FFmpeg / Zero Vercel Timeouts)
+              Client-Side WebCodecs Video Export Active (Zero Server FFmpeg)
             </span>
           </span>
           <span className="hidden md:inline font-medium text-slate-400">
-            <Sparkles className="h-3 w-3 inline mr-1 text-amber-400" />
-            Parul University Tech Expo 2027
+            <Sparkles className="h-3 w-3 inline mr-1 text-indigo-400" />
+            VidyaMotion AI Studio
           </span>
         </div>
       )}

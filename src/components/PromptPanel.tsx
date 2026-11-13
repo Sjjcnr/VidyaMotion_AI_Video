@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   CheckCircle2,
+  Code2,
   Cpu,
   Layers,
   Loader2,
@@ -23,7 +24,7 @@ export interface PromptPanelProps {
   theme: ThemeId;
   onThemeChange: (theme: ThemeId) => void;
   language: LanguageCode;
-  onGenerate: (topic: string) => void;
+  onGenerate: (topic: string, customInstruction?: string) => void;
   onCancelGeneration: () => void;
   generationStatus: GenerationPhase;
   generationProgress: number;
@@ -38,6 +39,7 @@ const SUGGESTIONS = [
   "Explain QuickSort Algorithm",
   "How Solar Panels Generate Electricity",
   "DNA Double Helix Structure",
+  "Ohm's Law & Circuit Analysis",
 ];
 
 const THEMES: {
@@ -48,18 +50,18 @@ const THEMES: {
   bg: string;
 }[] = [
   {
-    id: "cyber_dark",
-    name: "Cyber Dark",
-    desc: "Neon Cyan & Deep Slate",
-    accent: "#06B6D4",
-    bg: "#020617",
-  },
-  {
     id: "clean_modern",
     name: "Clean Modern",
-    desc: "Pure Indigo & Slate Blue",
+    desc: "Slate & Indigo",
     accent: "#6366F1",
     bg: "#0B0F19",
+  },
+  {
+    id: "cyber_dark",
+    name: "Cyber Dark",
+    desc: "Cyan & Charcoal",
+    accent: "#06B6D4",
+    bg: "#020617",
   },
   {
     id: "sunset_amber",
@@ -76,6 +78,9 @@ const THEMES: {
     bg: "#04150E",
   },
 ];
+
+const DEFAULT_INSTRUCTION =
+  "Generate extensive, high-density Remotion TSX code (200-450+ lines). Strictly no PowerPoint-style bullet points or summary cards. Create rich animated SVG diagrams, physics/process simulations, mathematical curves, or detailed schematics timed to voiceover.";
 
 export const PromptPanel: React.FC<PromptPanelProps> = ({
   currentTopic,
@@ -95,6 +100,8 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
   onLoadPreset,
 }) => {
   const [inputVal, setInputVal] = useState(currentTopic);
+  const [customInstruction, setCustomInstruction] = useState(DEFAULT_INSTRUCTION);
+  const [showAdvancedPrompt, setShowAdvancedPrompt] = useState(false);
 
   const isGenerating =
     generationStatus === "generating-script" ||
@@ -114,7 +121,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputVal.trim() && !isGenerating) {
-      onGenerate(inputVal.trim());
+      onGenerate(inputVal.trim(), customInstruction.trim());
     }
   };
 
@@ -123,15 +130,15 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
       {/* Header title */}
       <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-cyan-400" />
+          <Sparkles className="h-4 w-4 text-indigo-400" />
           <h2 className="text-sm font-semibold tracking-wide text-white uppercase">
             Topic Prompt & Controls
           </h2>
         </div>
         {modelUsed && (
-          <span className="rounded-full bg-slate-800/90 px-2.5 py-0.5 text-[10px] font-medium text-slate-300">
+          <span className="rounded-md border border-slate-700 bg-slate-800/90 px-2.5 py-0.5 text-[10px] font-medium text-slate-300">
             {fallbackUsed ? "Fallback: " : "Engine: "}
-            <span className="text-cyan-400">{modelUsed}</span>
+            <span className="text-indigo-400 font-mono">{modelUsed}</span>
           </span>
         )}
       </div>
@@ -151,15 +158,15 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
             value={inputVal}
             onChange={handleInputChange}
             disabled={isGenerating}
-            placeholder="e.g. How Solar Panels Generate Electricity, or QuickSort Algorithm..."
-            className="w-full resize-none rounded-xl border border-slate-700/80 bg-slate-950/90 p-3 text-sm text-slate-100 placeholder-slate-500 transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
+            placeholder="e.g. How Solar Panels Generate Electricity, QuickSort Algorithm, Ohm's Law..."
+            className="w-full resize-none rounded-xl border border-slate-700 bg-slate-950/90 p-3 text-sm text-slate-100 placeholder-slate-500 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
           />
         </div>
 
         {/* Suggestion Chips */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] font-medium text-slate-400">
-            Prompt suggestions:
+            Topic suggestions:
           </span>
           <div className="flex flex-wrap gap-1.5">
             {SUGGESTIONS.map((suggestion) => (
@@ -168,7 +175,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                 type="button"
                 disabled={isGenerating}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1 text-[11px] text-slate-300 transition-all hover:border-cyan-500/50 hover:bg-cyan-950/30 hover:text-cyan-300 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+                className="rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1 text-[11px] text-slate-300 transition-all hover:border-indigo-500/50 hover:bg-indigo-950/30 hover:text-indigo-300 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
               >
                 {suggestion}
               </button>
@@ -188,7 +195,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
               onClick={() => onAspectRatioChange("16:9")}
               className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-medium transition-all ${
                 aspectRatio === "16:9"
-                  ? "border-cyan-500 bg-cyan-950/40 text-cyan-200 shadow-sm shadow-cyan-500/10"
+                  ? "border-indigo-500 bg-indigo-950/40 text-indigo-200 shadow-sm"
                   : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
               }`}
             >
@@ -203,7 +210,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
               onClick={() => onAspectRatioChange("9:16")}
               className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-medium transition-all ${
                 aspectRatio === "9:16"
-                  ? "border-cyan-500 bg-cyan-950/40 text-cyan-200 shadow-sm shadow-cyan-500/10"
+                  ? "border-indigo-500 bg-indigo-950/40 text-indigo-200 shadow-sm"
                   : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
               }`}
             >
@@ -230,7 +237,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                   onClick={() => onThemeChange(t.id)}
                   className={`flex flex-col gap-1 rounded-xl border p-2 text-left transition-all ${
                     isSelected
-                      ? "border-cyan-400 bg-slate-950 text-white shadow-sm shadow-cyan-500/10 ring-1 ring-cyan-500/40"
+                      ? "border-indigo-500 bg-slate-950 text-white shadow-sm ring-1 ring-indigo-500/30"
                       : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                   }`}
                 >
@@ -252,6 +259,46 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
           </div>
         </div>
 
+        {/* Mandatory Long-Code Directive & Custom Prompt Box */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-300">
+              <Code2 className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Code Generation Directives:</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowAdvancedPrompt((prev) => !prev)}
+              className="text-[11px] text-indigo-400 hover:underline"
+            >
+              {showAdvancedPrompt ? "Hide Directives" : "Customize Directive"}
+            </button>
+          </div>
+
+          <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-2.5 text-[11px] text-slate-400 leading-relaxed">
+            <div className="flex items-center gap-1.5 text-indigo-300 font-medium mb-1">
+              <span>⚡ Active Directive:</span>
+              <span className="rounded bg-indigo-500/10 px-1.5 py-0.2 text-[10px] text-indigo-400">
+                Mandatory Long Code · Anti-PPT Mode
+              </span>
+            </div>
+            {showAdvancedPrompt ? (
+              <textarea
+                rows={3}
+                value={customInstruction}
+                onChange={(e) => setCustomInstruction(e.target.value)}
+                disabled={isGenerating}
+                placeholder="Custom instruction appended to every Remotion code generation request..."
+                className="w-full mt-1.5 resize-none rounded-lg border border-slate-700 bg-slate-900 p-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
+              />
+            ) : (
+              <p className="line-clamp-2 text-slate-400 italic">
+                "{customInstruction}"
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Generation Action Button & Progress */}
         <div className="mt-1 flex flex-col gap-3">
           {isGenerating ? (
@@ -259,9 +306,9 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
               <button
                 type="button"
                 disabled
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-600/20"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/20"
               >
-                <Loader2 className="h-4 w-4 animate-spin text-cyan-200" />
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-200" />
                 <span>Generating Video... {generationProgress}%</span>
               </button>
               <button
@@ -277,7 +324,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
             <button
               type="submit"
               disabled={!inputVal.trim()}
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/25 transition-all hover:from-cyan-400 hover:to-blue-500 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+              className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 transition-all hover:bg-indigo-500 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
             >
               <Sparkles className="h-4 w-4" />
               <span>Generate Autonomous Video</span>
@@ -288,10 +335,10 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
           {isGenerating && (
             <div className="rounded-xl border border-slate-800 bg-slate-950/90 p-3.5">
               <div className="mb-2 flex items-center justify-between text-xs">
-                <span className="font-medium text-cyan-300">
+                <span className="font-medium text-indigo-300">
                   {statusMessage}
                 </span>
-                <span className="font-mono text-cyan-400">
+                <span className="font-mono text-indigo-400">
                   {generationProgress}%
                 </span>
               </div>
@@ -299,7 +346,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
               {/* Progress bar line */}
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-400 transition-all duration-300 ease-out"
+                  className="h-full bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-400 transition-all duration-300 ease-out"
                   style={{ width: `${generationProgress}%` }}
                 />
               </div>
@@ -309,7 +356,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                 <div
                   className={`flex flex-col items-center gap-1 text-center ${
                     generationStatus === "generating-script"
-                      ? "text-cyan-400 font-bold"
+                      ? "text-indigo-400 font-bold"
                       : generationProgress > 25
                       ? "text-slate-400 font-normal"
                       : "text-slate-600"
@@ -321,7 +368,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                 <div
                   className={`flex flex-col items-center gap-1 text-center ${
                     generationStatus === "synthesizing-audio"
-                      ? "text-cyan-400 font-bold"
+                      ? "text-indigo-400 font-bold"
                       : generationProgress > 85
                       ? "text-slate-400 font-normal"
                       : "text-slate-600"
@@ -333,7 +380,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                 <div
                   className={`flex flex-col items-center gap-1 text-center ${
                     generationStatus === "building-timeline"
-                      ? "text-cyan-400 font-bold"
+                      ? "text-indigo-400 font-bold"
                       : generationProgress >= 95
                       ? "text-slate-400 font-normal"
                       : "text-slate-600"
@@ -368,12 +415,12 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
               </div>
               <div className="mt-1 flex items-center justify-between border-t border-rose-900/50 pt-2">
                 <span className="text-[11px] text-rose-300/80">
-                  Tech Expo Offline Showcase is ready:
+                  Featured Offline Demos are ready:
                 </span>
                 <button
                   type="button"
                   onClick={() => onLoadPreset("binary-search-trees")}
-                  className="rounded-lg bg-amber-500/20 px-2.5 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-500/30"
+                  className="rounded-lg bg-indigo-500/20 px-2.5 py-1 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-500/30"
                 >
                   Load BST Demo
                 </button>
@@ -383,7 +430,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
         </div>
       </form>
 
-      {/* Mandatory Section 5 Privacy Notice */}
+      {/* Privacy Notice */}
       <div className="mt-1 flex items-start gap-2 rounded-xl border border-slate-800/80 bg-slate-950/70 p-3 text-[11px] text-slate-400">
         <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
         <p className="leading-relaxed">

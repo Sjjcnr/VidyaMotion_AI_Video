@@ -36,6 +36,7 @@ export interface BuildVideoProjectOptions {
   language?: LanguageCode;
   theme?: ThemeId;
   aspectRatio?: AspectRatio;
+  customInstruction?: string;
   onProgress?: (progress: BuildProgress) => void;
   signal?: AbortSignal;
 }
@@ -49,14 +50,14 @@ export interface BuildVideoProjectResult {
 export class ApiClientError extends Error {
   public readonly code: string;
   public readonly statusCode?: number;
-  public readonly isExpoFallbackAvailable: boolean;
+  public readonly isShowcaseFallbackAvailable: boolean;
 
   constructor(message: string, code = "API_ERROR", statusCode?: number) {
     super(message);
     this.name = "ApiClientError";
     this.code = code;
     this.statusCode = statusCode;
-    this.isExpoFallbackAvailable = true;
+    this.isShowcaseFallbackAvailable = true;
   }
 }
 
@@ -84,7 +85,7 @@ export async function generateScript(
     const message =
       error instanceof Error ? error.message : "Network error during script generation.";
     throw new ApiClientError(
-      `Could not reach script generation service: ${message}. You can load one of the 4 offline Expo Showcase presets instantly!`,
+      `Could not reach script generation service: ${message}. You can load one of the 4 featured offline showcase demos instantly!`,
       "NETWORK_ERROR"
     );
   }
@@ -122,7 +123,7 @@ export async function generateScript(
     }
 
     throw new ApiClientError(
-      `${errorMessage} (Code: ${errorCode}). You can load an offline Expo Showcase preset to continue without API access.`,
+      `${errorMessage} (Code: ${errorCode}). You can load an offline showcase demo to continue without API access.`,
       errorCode,
       response.status
     );
@@ -133,7 +134,7 @@ export async function generateScript(
   if (!parsed.success) {
     console.error("[apiClient] Invalid response format from /api/generate-script:", parsed.error);
     throw new ApiClientError(
-      "Received an invalid script schema from the server. You can switch to an Expo Showcase preset.",
+      "Received an invalid script schema from the server. You can switch to a featured offline demo.",
       "INVALID_SCHEMA",
       response.status
     );
@@ -300,14 +301,16 @@ export async function buildFullVideoProject(
   let language: LanguageCode;
   let theme: ThemeId;
   let aspectRatio: AspectRatio;
+  let customInstruction: string | undefined;
   let onProgress: ((progress: BuildProgress) => void) | undefined;
   let signal: AbortSignal | undefined;
 
   if (typeof topicOrOptions === "object" && topicOrOptions !== null) {
     topic = topicOrOptions.topic;
     language = topicOrOptions.language ?? "en-IN";
-    theme = topicOrOptions.theme ?? "cyber_dark";
+    theme = topicOrOptions.theme ?? "clean_modern";
     aspectRatio = topicOrOptions.aspectRatio ?? "16:9";
+    customInstruction = topicOrOptions.customInstruction;
     onProgress = topicOrOptions.onProgress;
     signal = topicOrOptions.signal;
   } else {
@@ -381,7 +384,13 @@ export async function buildFullVideoProject(
       signal
     );
 
-    // 2. Generate Dynamic Remotion Code in parallel
+    // 2. Generate Dynamic Remotion Code in parallel with mandatory Anti-PPT and long-code directives
+    const mandatoryDirective =
+      "GENERATE AS LONG AND EXTENSIVE REMOTION CODE AS POSSIBLE (200-450+ LINES). NO PPT / SLIDE-CARD DESIGNS: The narration audio provides all spoken explanations. The visual screen must be a pure programmatic animated demonstration — multi-node animated SVG diagrams, step-by-step kinetic technical schematics, mathematical curves, moving charges/particles, or interactive state machines. Do NOT render generic 3-box text slides or bullet point lists.";
+    const activeInstruction = customInstruction
+      ? `${customInstruction}\n\n${mandatoryDirective}`
+      : mandatoryDirective;
+
     const codePromise = generateSceneCode(
       {
         topic,
@@ -397,6 +406,7 @@ export async function buildFullVideoProject(
         durationInFrames: 150,
         durationInSeconds: 5,
         accentColor: scene.accentColor,
+        userInstruction: activeInstruction,
       },
       signal
     ).catch((err) => {

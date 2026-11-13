@@ -100,41 +100,41 @@ export const Header: React.FC<HeaderProps> = ({
     LANGUAGES.find((l) => l.code === currentLanguage) || LANGUAGES[0];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         {/* Brand identity */}
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-400/30">
-            <Zap className="h-5 w-5 text-white" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm">
+            <Zap className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg font-bold tracking-tight text-white">
-                VidyaMotion <span className="text-cyan-400">AI</span>
+              <span className="text-base font-bold tracking-tight text-white">
+                VidyaMotion <span className="text-indigo-400">AI</span>
               </span>
-              <span className="rounded-full border border-cyan-500/30 bg-cyan-950/60 px-2 py-0.5 text-[10px] font-medium tracking-wide text-cyan-300">
-                ⚡ Tech Expo 2027
+              <span className="rounded-md border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] font-medium tracking-wide text-slate-300">
+                Code Mode
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Autonomous Topic-to-Animated-Video Studio · Bharat @ 2047
+              Autonomous Topic-to-Animated-Video Studio
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5">
-          {/* Expo Showcase Quick-Load Dropdown */}
+          {/* Featured Showcase Demos Dropdown */}
           <div className="relative" ref={presetsMenuRef}>
             <button
               type="button"
               onClick={() => setShowPresetsMenu((prev) => !prev)}
-              className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-gradient-to-r from-amber-500/15 to-orange-500/10 px-3 py-1.5 text-xs font-semibold text-amber-200 transition-all hover:border-amber-400 hover:bg-amber-500/25 active:scale-95 shadow-sm shadow-amber-500/10"
-              title="Pre-warmed offline showcase demos that work without internet or quota"
+              className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200 transition-all hover:border-slate-600 hover:bg-slate-850 active:scale-95"
+              title="Pre-rendered showcase demos that work offline without internet or quota"
             >
-              <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
-              <span className="hidden sm:inline">Expo Showcase</span>
-              <span className="rounded bg-amber-400/20 px-1 py-0.2 text-[10px] font-bold text-amber-300">
+              <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+              <span className="hidden sm:inline">Featured Demos</span>
+              <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-300">
                 4 Demos
               </span>
               <ChevronDown className="h-3.5 w-3.5 opacity-70" />
@@ -142,8 +142,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             {showPresetsMenu && (
               <div className="absolute right-0 mt-2 w-72 rounded-xl border border-slate-800 bg-slate-900/95 p-1.5 shadow-2xl backdrop-blur-lg">
-                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-amber-400/90 border-b border-slate-800/80">
-                  Offline Showcase Presets
+                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800/80">
+                  Featured Demos (Offline Ready)
                 </div>
                 <div className="mt-1 space-y-1">
                   {SHOWCASE_PRESETS.map((preset) => {
@@ -160,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({
                         }}
                         className={`flex w-full flex-col rounded-lg px-3 py-2 text-left transition-colors ${
                           isSelected
-                            ? "border border-amber-500/40 bg-amber-950/40 text-amber-200"
+                            ? "border border-indigo-500/40 bg-indigo-950/40 text-indigo-200"
                             : "text-slate-200 hover:bg-slate-800/70"
                         }`}
                       >
@@ -192,9 +192,9 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-700 hover:bg-slate-800"
                 title="Locally stored videos"
               >
-                <Bookmark className="h-3.5 w-3.5 text-cyan-400" />
+                <Bookmark className="h-3.5 w-3.5 text-indigo-400" />
                 <span className="hidden sm:inline">Saved</span>
-                <span className="rounded-full bg-slate-800 px-1.5 text-[10px] text-cyan-300">
+                <span className="rounded-full bg-slate-800 px-1.5 text-[10px] text-indigo-300">
                   {savedProjects.length}
                 </span>
               </button>
@@ -252,7 +252,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setShowLangMenu((prev) => !prev)}
               className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-slate-700 hover:bg-slate-800 active:scale-95 transition-all"
             >
-              <Globe className="h-3.5 w-3.5 text-cyan-400" />
+              <Globe className="h-3.5 w-3.5 text-indigo-400" />
               <span>{activeLang.native}</span>
               <span className="hidden sm:inline text-slate-400 text-[10px]">
                 ({activeLang.code})
@@ -262,7 +262,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {showLangMenu && (
               <div className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-800 bg-slate-900/95 p-1.5 shadow-2xl backdrop-blur-lg">
-                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-cyan-400/90 border-b border-slate-800/80">
+                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800/80">
                   Narration Language & Voice
                 </div>
                 <div className="mt-1 space-y-1">
@@ -278,7 +278,7 @@ export const Header: React.FC<HeaderProps> = ({
                         }}
                         className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-colors ${
                           isSelected
-                            ? "bg-cyan-950/60 text-cyan-300 font-semibold border border-cyan-500/30"
+                            ? "bg-indigo-950/60 text-indigo-300 font-semibold border border-indigo-500/30"
                             : "text-slate-300 hover:bg-slate-800/70"
                         }`}
                       >

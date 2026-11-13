@@ -53,6 +53,7 @@ export interface GenerateVideoOptions {
   language?: LanguageCode;
   theme?: ThemeId;
   aspectRatio?: AspectRatio;
+  customInstruction?: string;
 }
 
 export function useVideoProject() {
@@ -64,7 +65,7 @@ export function useVideoProject() {
   const [generationStatus, setGenerationStatus] = useState<GenerationPhase>("idle");
   const [generationProgress, setGenerationProgress] = useState<number>(0);
   const [statusMessage, setStatusMessage] = useState<string>(
-    "Ready. Choose a topic or load an Expo showcase preset."
+    "Ready. Enter a topic or select a featured demo."
   );
   const [error, setError] = useState<string | null>(null);
   const [modelUsed, setModelUsed] = useState<string | null>("Offline Preset Cache");
@@ -219,6 +220,7 @@ export function useVideoProject() {
           language: options.language ?? currentProject.language,
           theme: options.theme ?? currentProject.theme,
           aspectRatio: options.aspectRatio ?? currentProject.aspectRatio,
+          customInstruction: options.customInstruction,
           signal: ac.signal,
           onProgress: (progress) => {
             setGenerationStatus(progress.phase);

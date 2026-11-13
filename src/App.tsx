@@ -1,5 +1,5 @@
 import type { PlayerRef } from "@remotion/player";
-import { Sparkles, Trophy } from "lucide-react";
+import { Code2, Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Header } from "./components/Header";
 import { PromptPanel } from "./components/PromptPanel";
@@ -68,9 +68,10 @@ export function App() {
     setCurrentProject((prev) => ({ ...prev, topic }));
   };
 
-  const handleGenerate = (topic: string) => {
+  const handleGenerate = (topic: string, customInstruction?: string) => {
     void generateVideo({
       topic,
+      customInstruction,
       language: currentProject.language,
       theme: currentProject.theme,
       aspectRatio: currentProject.aspectRatio,
@@ -85,7 +86,7 @@ export function App() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#020617] text-slate-100 antialiased selection:bg-cyan-500 selection:text-slate-950">
+    <div className="flex min-h-screen flex-col bg-[#090D16] text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
       {/* Studio Header */}
       <Header
         currentLanguage={currentProject.language}
@@ -100,24 +101,24 @@ export function App() {
       {/* Main Studio Viewport */}
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:gap-8">
         {/* Banner notification / Subtitle info */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-blue-950/30 p-3.5 backdrop-blur-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/70 p-3.5 backdrop-blur-sm">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
               <Sparkles className="h-4 w-4" />
             </span>
             <div>
-              <p className="text-xs font-semibold text-cyan-200">
+              <p className="text-xs font-semibold text-slate-200">
                 Autonomous AI Video Generation Studio
               </p>
               <p className="text-[11px] text-slate-400">
-                Topic prompt → Gemini Scene Director → Edge-TTS Neural Voice → Remotion 60 FPS Kinetic Video
+                Topic prompt → Gemini Scene Director → Edge-TTS Neural Voice → Remotion Kinetic Video
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-slate-400">
-            <Trophy className="h-3.5 w-3.5 text-amber-400" />
-            <span>Tech Expo 2027 · Innovating for Bharat @ 2047</span>
+          <div className="flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-[11px] text-slate-300">
+            <Code2 className="h-3.5 w-3.5 text-indigo-400" />
+            <span>Autonomous Remotion Code Engine</span>
           </div>
         </div>
 
@@ -170,13 +171,13 @@ export function App() {
       </main>
 
       {/* Studio Footer */}
-      <footer className="mt-auto border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-500">
+      <footer className="mt-auto border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 sm:px-6">
           <span>
-            VidyaMotion AI · Designed for Parul University Tech Expo 2027
+            VidyaMotion AI · Dynamic Code-Mode Video Studio
           </span>
           <span className="font-mono text-[11px] text-slate-600">
-            Vite 8 · React 19 · Remotion 4 · Tailwind v4 · Gemini Flash · Edge-TTS
+            React 19 · Remotion 4 · Vite 8 · Gemini Flash · Edge-TTS
           </span>
         </div>
       </footer>

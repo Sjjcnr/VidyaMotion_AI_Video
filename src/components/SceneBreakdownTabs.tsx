@@ -175,7 +175,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
             onClick={() => setActiveTab("breakdown")}
             className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
               activeTab === "breakdown"
-                ? "border border-cyan-500/40 bg-cyan-950/60 text-cyan-300 shadow-sm shadow-cyan-500/10"
+                ? "border border-indigo-500/40 bg-indigo-950/60 text-indigo-300 shadow-sm"
                 : "border border-transparent text-slate-400 hover:bg-slate-800/70 hover:text-slate-200"
             }`}
           >
@@ -188,7 +188,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
             onClick={() => setActiveTab("transcript")}
             className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
               activeTab === "transcript"
-                ? "border border-cyan-500/40 bg-cyan-950/60 text-cyan-300 shadow-sm shadow-cyan-500/10"
+                ? "border border-indigo-500/40 bg-indigo-950/60 text-indigo-300 shadow-sm"
                 : "border border-transparent text-slate-400 hover:bg-slate-800/70 hover:text-slate-200"
             }`}
           >
@@ -209,13 +209,13 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
             }}
             className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
               activeTab === "code"
-                ? "border border-cyan-500/40 bg-cyan-950/60 text-cyan-300 shadow-sm shadow-cyan-500/10"
+                ? "border border-indigo-500/40 bg-indigo-950/60 text-indigo-300 shadow-sm"
                 : "border border-transparent text-slate-400 hover:bg-slate-800/70 hover:text-slate-200"
             }`}
           >
             <Code2 className="h-3.5 w-3.5" />
             <span>View Generated Code</span>
-            <span className="rounded bg-cyan-950/80 border border-cyan-800/50 px-1.5 py-0.2 text-[10px] text-cyan-300 font-mono">
+            <span className="rounded bg-indigo-950/80 border border-indigo-800/50 px-1.5 py-0.2 text-[10px] text-indigo-300 font-mono">
               AI TSX
             </span>
           </button>
@@ -249,7 +249,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
             <span>
               💡 Each scene is coded dynamically in Remotion TSX. Click title to edit, or Regenerate to rewrite with custom AI instructions.
             </span>
-            <span className="font-mono text-cyan-400">
+            <span className="font-mono text-indigo-400">
               Total: {Math.round(project.totalDurationInFrames / 30)}s ({project.totalDurationInFrames} frames)
             </span>
           </div>
@@ -265,7 +265,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
               return (
                 <div
                   key={scene.id}
-                  className="flex flex-col gap-2 rounded-xl border border-slate-800/80 bg-slate-950/70 p-3.5 transition-all hover:border-slate-700 hover:bg-slate-950/90"
+                  className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/70 p-3.5 transition-all hover:border-slate-700 hover:bg-slate-950/90"
                 >
                   {/* Top row: Badges, jump button, duration, Regenerate button */}
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -275,8 +275,8 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                       </span>
 
                       {/* Model Badge */}
-                      <span className="flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-950/60 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
-                        <Sparkles className="h-2.5 w-2.5 text-cyan-400" />
+                      <span className="flex items-center gap-1 rounded-md border border-indigo-500/30 bg-indigo-950/60 px-2 py-0.5 text-[10px] font-semibold text-indigo-300">
+                        <Sparkles className="h-2.5 w-2.5 text-indigo-400" />
                         <span>{scene.modelUsed || "gemini-3.8-flash"}</span>
                       </span>
 
@@ -306,7 +306,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                         <button
                           type="button"
                           onClick={() => onSeekToScene(fromFrame)}
-                          className="flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-cyan-300 hover:border-cyan-500/50 hover:bg-cyan-950/40"
+                          className="flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-indigo-300 hover:border-indigo-500/50 hover:bg-indigo-950/40"
                           title={`Jump to frame ${fromFrame}`}
                         >
                           <PlayCircle className="h-3 w-3" />
@@ -322,12 +322,12 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                             setShowPromptBoxSceneId(showPromptBox ? null : scene.id)
                           }
                           disabled={isRegenerating}
-                          className="flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300 hover:border-cyan-500 hover:text-white transition-all disabled:opacity-50"
+                          className="flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300 hover:border-indigo-500 hover:text-white transition-all disabled:opacity-50"
                         >
                           {isRegenerating ? (
-                            <Loader2 className="h-3 w-3 animate-spin text-cyan-400" />
+                            <Loader2 className="h-3 w-3 animate-spin text-indigo-400" />
                           ) : (
-                            <RefreshCw className="h-3 w-3 text-cyan-400" />
+                            <RefreshCw className="h-3 w-3 text-indigo-400" />
                           )}
                           <span>{isRegenerating ? "Coding..." : "Regenerate"}</span>
                         </button>
@@ -337,8 +337,8 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
 
                   {/* Expandable Regeneration Instruction Box */}
                   {showPromptBox && (
-                    <div className="mt-1 flex flex-col gap-2 rounded-lg border border-cyan-900/60 bg-cyan-950/30 p-2.5">
-                      <div className="text-[11px] font-medium text-cyan-300">
+                    <div className="mt-1 flex flex-col gap-2 rounded-lg border border-indigo-900/60 bg-indigo-950/30 p-2.5">
+                      <div className="text-[11px] font-medium text-indigo-300">
                         Regeneration Instruction (Optional):
                       </div>
                       <div className="flex gap-2">
@@ -357,13 +357,13 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                               handleRegenerate(scene.id);
                             }
                           }}
-                          className="flex-1 rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+                          className="flex-1 rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
                         />
                         <button
                           type="button"
                           onClick={() => handleRegenerate(scene.id)}
                           disabled={isRegenerating}
-                          className="rounded-md bg-cyan-600 px-3 py-1 text-xs font-semibold text-white hover:bg-cyan-500 disabled:opacity-50"
+                          className="rounded-md bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
                         >
                           {isRegenerating ? "Generating..." : "Generate Code"}
                         </button>
@@ -379,7 +379,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                         onClick={() =>
                           setIconPickerSceneId(isPickingIcon ? null : scene.id)
                         }
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 p-2 text-cyan-400 transition-all hover:border-cyan-400 hover:scale-105"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 p-2 text-indigo-400 transition-all hover:border-indigo-400 hover:scale-105"
                         title="Click to swap Lucide icon"
                       >
                         <IconComponent className="h-5 w-5" />
@@ -403,8 +403,8 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                                   }}
                                   className={`flex h-8 w-8 items-center justify-center rounded-lg p-1.5 transition-all ${
                                     scene.iconName === iconName
-                                      ? "bg-cyan-500 text-slate-950"
-                                      : "text-slate-300 hover:bg-slate-800 hover:text-cyan-400"
+                                      ? "bg-indigo-600 text-white"
+                                      : "text-slate-300 hover:bg-slate-800 hover:text-indigo-400"
                                   }`}
                                   title={iconName}
                                 >
@@ -443,7 +443,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                               onUpdateHeading(scene.id, e.target.value);
                               setEditingSceneId(null);
                             }}
-                            className="w-full rounded-lg border border-cyan-500 bg-slate-950 px-2.5 py-1 text-sm font-semibold text-white focus:outline-none"
+                            className="w-full rounded-lg border border-indigo-500 bg-slate-950 px-2.5 py-1 text-sm font-semibold text-white focus:outline-none"
                           />
                           <button
                             type="button"
@@ -459,7 +459,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                           className="group flex cursor-pointer items-center gap-1.5"
                           title="Click to edit headline live"
                         >
-                          <h3 className="text-sm font-semibold text-slate-200 group-hover:text-cyan-300 transition-colors">
+                          <h3 className="text-sm font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">
                             {scene.heading}
                           </h3>
                           <Edit3 className="h-3 w-3 text-slate-500 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -475,7 +475,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                       {/* Visual Brief Display */}
                       {scene.visualBrief && (
                         <div className="mt-2 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1.5 text-xs text-slate-300">
-                          <span className="font-semibold text-cyan-400">Visual Plan: </span>
+                          <span className="font-semibold text-indigo-400">Visual Plan: </span>
                           <span className="italic">{scene.visualBrief}</span>
                         </div>
                       )}
@@ -493,9 +493,9 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
         <div className="mt-4 flex flex-col gap-3">
           <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 px-3.5 py-2 text-xs">
             <div className="flex items-center gap-2">
-              <Mic className="h-3.5 w-3.5 text-cyan-400" />
+              <Mic className="h-3.5 w-3.5 text-indigo-400" />
               <span className="text-slate-300">Active Edge-TTS Neural Voice:</span>
-              <span className="font-semibold text-cyan-300">
+              <span className="font-semibold text-indigo-300">
                 {VOICE_INFO[project.language] || project.language}
               </span>
             </div>
@@ -536,7 +536,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                         onClick={() =>
                           handleCopyScene(scene.id, scene.narrationScript)
                         }
-                        className="rounded p-1 text-slate-400 hover:text-cyan-300"
+                        className="rounded p-1 text-slate-400 hover:text-indigo-300"
                         title="Copy scene narration script"
                       >
                         {isCopied ? (
@@ -571,7 +571,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                   onClick={() => setSelectedCodeSceneId(s.id)}
                   className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                     activeCodeScene?.id === s.id
-                      ? "bg-cyan-500 text-slate-950 font-bold shadow"
+                      ? "bg-indigo-600 text-white font-semibold shadow"
                       : "bg-slate-800 text-slate-400 hover:text-white"
                   }`}
                 >
@@ -609,14 +609,14 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                 <span>
                   Component for: <strong className="text-slate-200">{activeCodeScene.heading}</strong>
                 </span>
-                <span className="font-mono text-[11px] text-cyan-400">
+                <span className="font-mono text-[11px] text-indigo-400">
                   Model: {activeCodeScene.modelUsed || "AI Generated"} ·{" "}
                   {activeCodeScene.code ? `${activeCodeScene.code.length} chars` : "0 chars"}
                 </span>
               </div>
 
               {activeCodeScene.code ? (
-                <pre className="max-h-96 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-xs text-cyan-200/90 leading-relaxed">
+                <pre className="max-h-96 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-xs text-slate-300 leading-relaxed">
                   <code>{activeCodeScene.code}</code>
                 </pre>
               ) : (

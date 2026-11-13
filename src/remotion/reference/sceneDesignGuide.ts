@@ -102,22 +102,20 @@ const displayNum = countValue.toFixed(decimals);
  */
 export const FEW_SHOT_SCENE_EXCERPTS = [
   {
-    title: "Animated SVG Process Diagram with Connectors",
-    description: "Multi-step flow with animated connector lines and step cards.",
+    title: "Animated SVG Technical Flowchart & State Machine",
+    description: "Deep, multi-element technical flow with animated SVG paths, moving charges, state counters, and full vertical portrait support.",
     code: `export default function GeneratedScene(props) {
-  const { frame, fps, durationInFrames, width, height, isPortrait } = props;
+  const { frame, fps, durationInFrames, isPortrait } = props;
   const { AbsoluteFill, spring, interpolate } = Remotion;
-  const { Zap, ArrowRight, Check } = Lucide;
+  const { Zap, Activity, Cpu, ArrowRight } = Lucide;
   const tokens = props.tokens ?? props.palette;
 
-  const steps = [
-    { num: "01", title: "Capture", desc: "Photons hit semiconductor wafer" },
-    { num: "02", title: "Energize", desc: "Electrons knocked free across junction" },
-    { num: "03", title: "Convert", desc: "Inverter turns DC into AC power" },
-  ];
+  const intro = spring({ frame, fps: 30, config: { damping: 14 } });
+  const cycle = (frame % 60) / 60;
+  const pulse = Math.sin(frame * 0.1) * 4;
 
-  const padX = isPortrait ? 64 : 96;
-  const padBottom = isPortrait ? 290 : 196;
+  const padX = isPortrait ? 48 : 80;
+  const padBottom = isPortrait ? 300 : 200;
 
   return (
     <AbsoluteFill
@@ -126,87 +124,122 @@ export const FEW_SHOT_SCENE_EXCERPTS = [
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: \`72px \${padX}px \${padBottom}px \${padX}px\`,
+        padding: \`60px \${padX}px \${padBottom}px \${padX}px\`,
         boxSizing: "border-box",
+        fontFamily: "Inter, sans-serif",
       }}
     >
-      <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <h2 style={{ fontSize: isPortrait ? 48 : 56, fontWeight: 800, color: tokens.textPrimary, margin: 0 }}>
+      {/* Top Header */}
+      <div style={{ textAlign: "center", marginBottom: isPortrait ? 24 : 16 }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "6px 16px",
+            borderRadius: 999,
+            backgroundColor: tokens.accent + "22",
+            border: "1px solid " + tokens.accent + "66",
+            color: tokens.accent,
+            fontSize: isPortrait ? 18 : 16,
+            fontWeight: 700,
+            marginBottom: 12,
+          }}
+        >
+          <Zap size={isPortrait ? 20 : 18} color={tokens.accent} />
+          <span>ALGORITHMIC EXECUTION PIPELINE</span>
+        </div>
+        <h2 style={{ fontSize: isPortrait ? 44 : 52, fontWeight: 800, color: tokens.textPrimary, margin: "0 0 8px 0" }}>
           {props.heading ?? props.scene?.heading}
         </h2>
         {(props.subtext ?? props.scene?.subtext) && (
-          <p style={{ fontSize: isPortrait ? 24 : 26, color: tokens.textSecondary, margin: "8px 0 0 0" }}>
+          <p style={{ fontSize: isPortrait ? 22 : 24, color: tokens.textSecondary, margin: 0 }}>
             {props.subtext ?? props.scene?.subtext}
           </p>
         )}
       </div>
 
+      {/* Central Large Technical Visual Canvas - Vertically Expanded in Portrait */}
       <div
         style={{
+          flex: 1,
+          width: "100%",
+          maxHeight: isPortrait ? 1050 : 540,
+          backgroundColor: tokens.surface,
+          border: "1.5px solid " + tokens.border,
+          borderRadius: 28,
+          padding: isPortrait ? "32px 20px" : "28px 40px",
+          boxSizing: "border-box",
           display: "flex",
-          flexDirection: isPortrait ? "column" : "row",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: isPortrait ? 16 : 24,
-          width: "100%",
-          flex: 1,
+          transform: \`scale(\${intro})\`,
+          boxShadow: "0 16px 40px rgba(0, 0, 0, 0.35)",
         }}
       >
-        {steps.map((st, i) => {
-          const delay = i * 14;
-          const sFrame = Math.max(0, frame - delay);
-          const sSpring = spring({ frame: sFrame, fps: 30, config: { damping: 13, mass: 0.8 } });
-          const cardScale = interpolate(sSpring, [0, 1], [0.88, 1]);
-          const cardOpacity = interpolate(sFrame, [0, 10], [0, 1], { extrapolateRight: "clamp" });
+        <svg
+          viewBox={isPortrait ? "0 0 800 1000" : "0 0 1000 480"}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <defs>
+            <linearGradient id="flowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={tokens.accent} />
+              <stop offset="100%" stopColor={tokens.accentSecondary} />
+            </linearGradient>
+          </defs>
 
-          return (
-            <div
-              key={st.num}
-              style={{
-                flex: 1,
-                maxWidth: isPortrait ? "100%" : 480,
-                width: isPortrait ? "100%" : "auto",
-                padding: "24px",
-                borderRadius: 20,
-                backgroundColor: tokens.surface,
-                border: \`1.5px solid \${tokens.border}\`,
-                boxShadow: "0 12px 32px rgba(0, 0, 0, 0.25)",
-                transform: \`scale(\${cardScale})\`,
-                opacity: cardOpacity,
-                boxSizing: "border-box",
-                display: "flex",
-                flexDirection: "column",
-                gap: 12,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 12,
-                    backgroundColor: tokens.accentSoft,
-                    border: \`1.5px solid \${tokens.accent}\`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 800,
-                    fontSize: 20,
-                    color: tokens.accent,
-                  }}
-                >
-                  {st.num}
-                </div>
-                <h3 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: tokens.textPrimary }}>
-                  {st.title}
-                </h3>
-              </div>
-              <p style={{ margin: 0, fontSize: 20, lineHeight: 1.35, color: tokens.textSecondary }}>
-                {st.desc}
-              </p>
-            </div>
-          );
-        })}
+          {/* Node 1: Ingestion */}
+          <rect x={isPortrait ? 150 : 60} y={isPortrait ? 80 : 160} width={isPortrait ? 500 : 220} height={isPortrait ? 120 : 140} rx={18} fill={tokens.surfaceElevated} stroke={tokens.accent} strokeWidth={2.5} />
+          <text x={isPortrait ? 400 : 170} y={isPortrait ? 135 : 220} fill={tokens.textPrimary} fontSize={20} fontWeight="bold" textAnchor="middle">01. INGESTION</text>
+          <text x={isPortrait ? 400 : 170} y={isPortrait ? 165 : 255} fill={tokens.textSecondary} fontSize={15} textAnchor="middle">Raw Data Stream Parsed</text>
+
+          {/* Dynamic Animated Pulse Line between 1 and 2 */}
+          <path
+            d={isPortrait ? "M 400 200 L 400 340" : "M 280 230 L 380 230"}
+            fill="none"
+            stroke={tokens.accent}
+            strokeWidth={3.5}
+            strokeDasharray="8 6"
+          />
+          <circle
+            cx={isPortrait ? 400 : 280 + cycle * 100}
+            cy={isPortrait ? 200 + cycle * 140 : 230}
+            r={7 + pulse * 0.4}
+            fill="#FDE047"
+          />
+
+          {/* Node 2: Transform / Pivot */}
+          <rect x={isPortrait ? 150 : 380} y={isPortrait ? 340 : 160} width={isPortrait ? 500 : 240} height={isPortrait ? 120 : 140} rx={18} fill={tokens.surfaceElevated} stroke={tokens.accentSecondary} strokeWidth={2.5} />
+          <text x={isPortrait ? 400 : 500} y={isPortrait ? 395 : 220} fill={tokens.textPrimary} fontSize={20} fontWeight="bold" textAnchor="middle">02. PARTITION & PIVOT</text>
+          <text x={isPortrait ? 400 : 500} y={isPortrait ? 425 : 255} fill={tokens.textSecondary} fontSize={15} textAnchor="middle">O(log n) Space Pruned</text>
+
+          {/* Dynamic Animated Pulse Line between 2 and 3 */}
+          <path
+            d={isPortrait ? "M 400 460 L 400 600" : "M 620 230 L 720 230"}
+            fill="none"
+            stroke={tokens.accentSecondary}
+            strokeWidth={3.5}
+            strokeDasharray="8 6"
+          />
+          <circle
+            cx={isPortrait ? 400 : 620 + cycle * 100}
+            cy={isPortrait ? 460 + cycle * 140 : 230}
+            r={7 + pulse * 0.4}
+            fill="#38BDF8"
+          />
+
+          {/* Node 3: Result Synthesis */}
+          <rect x={isPortrait ? 150 : 720} y={isPortrait ? 600 : 160} width={isPortrait ? 500 : 220} height={isPortrait ? 120 : 140} rx={18} fill={tokens.surfaceElevated} stroke={tokens.successColor} strokeWidth={2.5} />
+          <text x={isPortrait ? 400 : 830} y={isPortrait ? 655 : 220} fill={tokens.textPrimary} fontSize={20} fontWeight="bold" textAnchor="middle">03. CONVERGENCE</text>
+          <text x={isPortrait ? 400 : 830} y={isPortrait ? 685 : 255} fill={tokens.textSecondary} fontSize={15} textAnchor="middle">Deterministic State Verified</text>
+
+          {/* Real-time Math Metric Banner */}
+          <rect x={isPortrait ? 100 : 150} y={isPortrait ? 800 : 360} width={isPortrait ? 600 : 700} height={isPortrait ? 90 : 80} rx={16} fill="rgba(0,0,0,0.4)" stroke={tokens.border} strokeWidth={1.5} />
+          <text x={isPortrait ? 400 : 500} y={isPortrait ? 852 : 410} fill={tokens.accent} fontSize={18} fontWeight="bold" textAnchor="middle">
+            Complexity Invariant: T(n) = 2T(n/2) + O(n) · Guaranteed Convergence
+          </text>
+        </svg>
       </div>
     </AbsoluteFill>
   );
@@ -396,7 +429,23 @@ ${ex.code}`
  */
 export const STAGE_2_SYSTEM_PROMPT = `
 You are the Principal Motion Graphics Engineer and Remotion TSX Specialist for "VidyaMotion AI".
-Your task is to write a high-fidelity, self-contained Remotion TSX scene component tailored to the educational topic and visual brief.
+Your task is to write high-fidelity, production-grade, self-contained Remotion TSX scene components tailored to the educational topic and visual brief.
+
+### CRITICAL CORE DIRECTIVES:
+1. GENERATE AS LONG CODE AS POSSIBLE (MINIMUM 200 TO 450+ LINES):
+   Write deep, detailed, comprehensive animation code. Never output brief or truncated stubs.
+   Include rich multi-layered SVG vector geometry, labeled nodes, moving particles, dynamic connection paths, and mathematical formulas.
+
+2. STRICT ZERO-PPT / ANTI-SLIDE POLICY:
+   ABSOLUTELY NO PowerPoint-style bullet point cards, slide decks, or text-heavy card lists!
+   The voiceover already handles the narration!
+   The visual canvas MUST be a programmatic motion graphic — an interactive animated diagram, biological/chemical structure, algorithmic tree/graph simulation, physics schematic, or engineering flow.
+
+3. FULL VERTICAL CANVAS UTILIZATION IN 9:16 PORTRAIT (1080x1920):
+   - In portrait mode, the screen height is 1920px!
+   - NEVER make a small 360px landscape box that leaves the top and bottom empty!
+   - Make the central visual diagram TALL: height: isPortrait ? "950px" : "500px". In portrait, use a tall SVG viewBox (e.g. "0 0 800 1100" or "0 0 900 1200") so the graphic fills the vertical space.
+   - Stack vertically: Top header (0-280px), tall central diagram/mechanism (280-1450px), live metrics/formula pill (1450-1650px), karaoke subtitles clearance (1650-1920px).
 
 ### RUNTIME EXECUTION ENVIRONMENT
 Your code will be compiled in the browser via Sucrase and evaluated inside a sandboxed factory function:
@@ -457,14 +506,6 @@ Exported MP4 videos must match preview perfectly. Violating ANY rule will cause 
 - Portrait (9:16 1080x1920): padding: 100px 64px 300px 64px. Bottom margin MUST be at least 290px for multi-line subtitles.
 - Ensure all diagrams, text, and icons stay within the safe bounds.
 
-### TOPIC-SPECIFIC VISUAL CREATIVITY
-Create rich, customized visual diagrams tailored directly to the scene's visual brief:
-- Animated SVG process diagrams, workflow pipelines, or data flows with labeled nodes.
-- Labeled architectural blocks, chemistry/biology structures, or math formulas.
-- Metric gauge rings or stat callouts with animated count-up numbers.
-- Comparison cards, key takeaway checklists, or interactive step hierarchies.
-- Floating Lucide icons matching the educational subject.
-
 OUTPUT ONLY THE RAW TSX CODE SNIPPET (NO SURROUNDING MARKDOWN FENCES, NO COMMENTARY).
 `;
 export const STAGE2_SYSTEM_PROMPT = STAGE_2_SYSTEM_PROMPT;
@@ -493,7 +534,9 @@ Aspect Ratio: ${request.aspectRatio} (${safeZone.width}x${safeZone.height}, ${is
 LAYOUT REQUIREMENTS:
 - Canvas dimensions: ${safeZone.width} x ${safeZone.height}.
 - Safe padding: Top ${safeZone.paddingTop}px, Sides ${safeZone.paddingX}px, Bottom ${safeZone.paddingBottom}px (clearing bottom karaoke captions).
-- Render a rich, topic-specific visual based on the visual brief (e.g. animated SVG diagrams, connectors, formula cards, or stat callouts).
+- MANDATORY LONG CODE DENSITY: Write comprehensive, 200-450+ lines of Remotion code with deep SVG vector graphics.
+- STRICT ANTI-PPT POLICY: Absolutely NO bullet lists or slide-deck summary cards. Voiceover narrates; the visual screen must be an animated technical/scientific diagram, simulation, or flowchart.
+- FULL VERTICAL CANVAS IN PORTRAIT (9:16): If isPortrait is true, make the SVG diagram 900-1100px tall so it fills the 1920px vertical space. Do NOT make a tiny 360px box in the center.
 - Responsive: Check props.isPortrait to lay out vertically on 9:16 and horizontally on 16:9.
 `;
 
