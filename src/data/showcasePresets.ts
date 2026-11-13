@@ -1,0 +1,2029 @@
+import { VideoProjectSchema, type VideoProject } from "../remotion/types";
+
+export interface ShowcasePreset {
+  id: string;
+  label: string;
+  badge: string;
+  languageLabel: string;
+  project: VideoProject;
+}
+
+const RAW_SHOWCASE_PRESETS: ShowcasePreset[] = [
+  {
+    "id": "binary-search-trees",
+    "label": "Binary Search Trees",
+    "badge": "CS & Algorithms",
+    "languageLabel": "English (IN)",
+    "project": {
+      "id": "showcase-binary-search-trees",
+      "topic": "Binary Search Trees",
+      "language": "en-IN",
+      "theme": "cyber_dark",
+      "aspectRatio": "16:9",
+      "fps": 30,
+      "scenes": [
+        {
+          "id": "bst-1-hero",
+          "type": "TITLE_HERO",
+          "heading": "Binary Search Trees Explained",
+          "subtext": "An ordered tree structure engineered for lightning-fast search, insert, and lookup.",
+          "highlightWord": "O(log n) SEARCH",
+          "iconName": "Network",
+          "narrationScript": "Welcome! Today we explore Binary Search Trees, a foundational data structure built for ultra-fast searching and sorted data.",
+          "accentColor": "#06B6D4",
+          "durationInFrames": 320,
+          "durationInSeconds": 10.152,
+          "audioUrl": "/demos/binary-search-trees/scene-1.mp3",
+          "captions": [
+            {
+              "text": "Welcome",
+              "startMs": 100,
+              "endMs": 813
+            },
+            {
+              "text": "Today",
+              "startMs": 1675,
+              "endMs": 2025
+            },
+            {
+              "text": "we",
+              "startMs": 2038,
+              "endMs": 2213
+            },
+            {
+              "text": "explore",
+              "startMs": 2225,
+              "endMs": 2763
+            },
+            {
+              "text": "Binary",
+              "startMs": 2775,
+              "endMs": 3275
+            },
+            {
+              "text": "Search",
+              "startMs": 3288,
+              "endMs": 3700
+            },
+            {
+              "text": "Trees",
+              "startMs": 3713,
+              "endMs": 4188
+            },
+            {
+              "text": "a",
+              "startMs": 4413,
+              "endMs": 4538
+            },
+            {
+              "text": "foundational",
+              "startMs": 4550,
+              "endMs": 5338
+            },
+            {
+              "text": "data",
+              "startMs": 5350,
+              "endMs": 5700
+            },
+            {
+              "text": "structure",
+              "startMs": 5713,
+              "endMs": 6250
+            },
+            {
+              "text": "built",
+              "startMs": 6263,
+              "endMs": 6625
+            },
+            {
+              "text": "for",
+              "startMs": 6638,
+              "endMs": 6913
+            },
+            {
+              "text": "ultra-fast",
+              "startMs": 6925,
+              "endMs": 7650
+            },
+            {
+              "text": "searching",
+              "startMs": 7663,
+              "endMs": 8200
+            },
+            {
+              "text": "and",
+              "startMs": 8213,
+              "endMs": 8425
+            },
+            {
+              "text": "sorted",
+              "startMs": 8438,
+              "endMs": 8838
+            },
+            {
+              "text": "data",
+              "startMs": 8850,
+              "endMs": 9288
+            }
+          ]
+        },
+        {
+          "id": "bst-2-rule",
+          "type": "SPLIT_EXPLAINER",
+          "heading": "The Core Ordering Property",
+          "subtext": "Every node enforces strict directional order across its left and right subtrees.",
+          "bulletPoints": [
+            "Left subtree holds only keys smaller than the parent node",
+            "Right subtree holds only keys larger than the parent node",
+            "Each comparison eliminates half of the remaining tree"
+          ],
+          "highlightWord": "ORDERED NODES",
+          "iconName": "Binary",
+          "narrationScript": "At every node, smaller values always go to the left branch and larger values go to the right, cutting the search space in half at each step.",
+          "accentColor": "#38BDF8",
+          "durationInFrames": 323,
+          "durationInSeconds": 10.248,
+          "audioUrl": "/demos/binary-search-trees/scene-2.mp3",
+          "captions": [
+            {
+              "text": "At",
+              "startMs": 100,
+              "endMs": 363
+            },
+            {
+              "text": "every",
+              "startMs": 375,
+              "endMs": 713
+            },
+            {
+              "text": "node",
+              "startMs": 725,
+              "endMs": 1113
+            },
+            {
+              "text": "smaller",
+              "startMs": 1238,
+              "endMs": 1738
+            },
+            {
+              "text": "values",
+              "startMs": 1750,
+              "endMs": 2250
+            },
+            {
+              "text": "always",
+              "startMs": 2263,
+              "endMs": 2750
+            },
+            {
+              "text": "go",
+              "startMs": 2763,
+              "endMs": 2975
+            },
+            {
+              "text": "to",
+              "startMs": 2988,
+              "endMs": 3088
+            },
+            {
+              "text": "the",
+              "startMs": 3100,
+              "endMs": 3188
+            },
+            {
+              "text": "left",
+              "startMs": 3200,
+              "endMs": 3563
+            },
+            {
+              "text": "branch",
+              "startMs": 3575,
+              "endMs": 4138
+            },
+            {
+              "text": "and",
+              "startMs": 4150,
+              "endMs": 4375
+            },
+            {
+              "text": "larger",
+              "startMs": 4388,
+              "endMs": 4825
+            },
+            {
+              "text": "values",
+              "startMs": 4838,
+              "endMs": 5338
+            },
+            {
+              "text": "go",
+              "startMs": 5350,
+              "endMs": 5575
+            },
+            {
+              "text": "to",
+              "startMs": 5588,
+              "endMs": 5700
+            },
+            {
+              "text": "the",
+              "startMs": 5713,
+              "endMs": 5800
+            },
+            {
+              "text": "right",
+              "startMs": 5813,
+              "endMs": 6250
+            },
+            {
+              "text": "cutting",
+              "startMs": 6513,
+              "endMs": 6900
+            },
+            {
+              "text": "the",
+              "startMs": 6913,
+              "endMs": 7000
+            },
+            {
+              "text": "search",
+              "startMs": 7013,
+              "endMs": 7388
+            },
+            {
+              "text": "space",
+              "startMs": 7400,
+              "endMs": 7875
+            },
+            {
+              "text": "in",
+              "startMs": 7888,
+              "endMs": 8038
+            },
+            {
+              "text": "half",
+              "startMs": 8050,
+              "endMs": 8388
+            },
+            {
+              "text": "at",
+              "startMs": 8400,
+              "endMs": 8700
+            },
+            {
+              "text": "each",
+              "startMs": 8713,
+              "endMs": 8963
+            },
+            {
+              "text": "step",
+              "startMs": 8975,
+              "endMs": 9388
+            }
+          ]
+        },
+        {
+          "id": "bst-3-flow",
+          "type": "STEP_BY_STEP_FLOW",
+          "heading": "How Search Finds a Target Key",
+          "subtext": "Three deterministic hops guide traversal straight to the answer.",
+          "bulletPoints": [
+            "Compare: Check target against the current root key",
+            "Branch: Step left if smaller, or right if larger",
+            "Locate: Stop at exact match or insert at empty leaf"
+          ],
+          "highlightWord": "3-STEP LOOKUP",
+          "iconName": "Search",
+          "narrationScript": "Searching works in three clear steps: compare with the root, branch left or right, and repeat until you match the target key.",
+          "accentColor": "#8B5CF6",
+          "durationInFrames": 286,
+          "durationInSeconds": 9.024,
+          "audioUrl": "/demos/binary-search-trees/scene-3.mp3",
+          "captions": [
+            {
+              "text": "Searching",
+              "startMs": 100,
+              "endMs": 738
+            },
+            {
+              "text": "works",
+              "startMs": 750,
+              "endMs": 1100
+            },
+            {
+              "text": "in",
+              "startMs": 1113,
+              "endMs": 1238
+            },
+            {
+              "text": "three",
+              "startMs": 1250,
+              "endMs": 1538
+            },
+            {
+              "text": "clear",
+              "startMs": 1550,
+              "endMs": 1875
+            },
+            {
+              "text": "steps",
+              "startMs": 1888,
+              "endMs": 2400
+            },
+            {
+              "text": "compare",
+              "startMs": 2613,
+              "endMs": 3150
+            },
+            {
+              "text": "with",
+              "startMs": 3163,
+              "endMs": 3300
+            },
+            {
+              "text": "the",
+              "startMs": 3313,
+              "endMs": 3400
+            },
+            {
+              "text": "root",
+              "startMs": 3413,
+              "endMs": 3813
+            },
+            {
+              "text": "branch",
+              "startMs": 3963,
+              "endMs": 4425
+            },
+            {
+              "text": "left",
+              "startMs": 4438,
+              "endMs": 4800
+            },
+            {
+              "text": "or",
+              "startMs": 4813,
+              "endMs": 4963
+            },
+            {
+              "text": "right",
+              "startMs": 4975,
+              "endMs": 5388
+            },
+            {
+              "text": "and",
+              "startMs": 5575,
+              "endMs": 5825
+            },
+            {
+              "text": "repeat",
+              "startMs": 5838,
+              "endMs": 6325
+            },
+            {
+              "text": "until",
+              "startMs": 6338,
+              "endMs": 6688
+            },
+            {
+              "text": "you",
+              "startMs": 6700,
+              "endMs": 6813
+            },
+            {
+              "text": "match",
+              "startMs": 6825,
+              "endMs": 7188
+            },
+            {
+              "text": "the",
+              "startMs": 7200,
+              "endMs": 7325
+            },
+            {
+              "text": "target",
+              "startMs": 7338,
+              "endMs": 7775
+            },
+            {
+              "text": "key",
+              "startMs": 7788,
+              "endMs": 8163
+            }
+          ]
+        },
+        {
+          "id": "bst-4-summary",
+          "type": "SUMMARY_TAKEAWAY",
+          "heading": "Why Developers Love BSTs",
+          "subtext": "Balanced trees power databases, indexes, and autocomplete engines.",
+          "bulletPoints": [
+            "Balanced lookups run in logarithmic O(log n) time",
+            "In-order traversal yields elements in sorted sequence",
+            "Powers database B-trees, file systems, and routing tables"
+          ],
+          "highlightWord": "KEY TAKEAWAYS",
+          "iconName": "CheckCircle2",
+          "narrationScript": "To sum up: balanced Binary Search Trees give fast logarithmic lookups, sorted traversal, and power modern database indexes.",
+          "accentColor": "#10B981",
+          "durationInFrames": 306,
+          "durationInSeconds": 9.696,
+          "audioUrl": "/demos/binary-search-trees/scene-4.mp3",
+          "captions": [
+            {
+              "text": "To",
+              "startMs": 100,
+              "endMs": 263
+            },
+            {
+              "text": "sum",
+              "startMs": 275,
+              "endMs": 563
+            },
+            {
+              "text": "up",
+              "startMs": 575,
+              "endMs": 825
+            },
+            {
+              "text": "balanced",
+              "startMs": 1000,
+              "endMs": 1563
+            },
+            {
+              "text": "Binary",
+              "startMs": 1575,
+              "endMs": 2063
+            },
+            {
+              "text": "Search",
+              "startMs": 2075,
+              "endMs": 2475
+            },
+            {
+              "text": "Trees",
+              "startMs": 2488,
+              "endMs": 2850
+            },
+            {
+              "text": "give",
+              "startMs": 2863,
+              "endMs": 3050
+            },
+            {
+              "text": "fast",
+              "startMs": 3063,
+              "endMs": 3463
+            },
+            {
+              "text": "logarithmic",
+              "startMs": 3475,
+              "endMs": 4113
+            },
+            {
+              "text": "lookups",
+              "startMs": 4125,
+              "endMs": 4675
+            },
+            {
+              "text": "sorted",
+              "startMs": 4913,
+              "endMs": 5400
+            },
+            {
+              "text": "traversal",
+              "startMs": 5413,
+              "endMs": 6150
+            },
+            {
+              "text": "and",
+              "startMs": 6363,
+              "endMs": 6613
+            },
+            {
+              "text": "power",
+              "startMs": 6625,
+              "endMs": 6950
+            },
+            {
+              "text": "modern",
+              "startMs": 6963,
+              "endMs": 7413
+            },
+            {
+              "text": "database",
+              "startMs": 7425,
+              "endMs": 8075
+            },
+            {
+              "text": "indexes",
+              "startMs": 8088,
+              "endMs": 8825
+            }
+          ]
+        }
+      ],
+      "totalDurationInFrames": 1235
+    }
+  },
+  {
+    "id": "photosynthesis-hi",
+    "label": "प्रकाश संश्लेषण",
+    "badge": "जीव विज्ञान",
+    "languageLabel": "हिन्दी (Hindi)",
+    "project": {
+      "id": "showcase-photosynthesis-hi",
+      "topic": "प्रकाश संश्लेषण (Photosynthesis)",
+      "language": "hi-IN",
+      "theme": "emerald_nature",
+      "aspectRatio": "16:9",
+      "fps": 30,
+      "scenes": [
+        {
+          "id": "photo-1-hero",
+          "type": "TITLE_HERO",
+          "heading": "प्रकाश संश्लेषण: जीवन की सौर ऊर्जा",
+          "subtext": "पौधे सूर्य के प्रकाश, पानी और कार्बन डाइऑक्साइड से अपना भोजन स्वयं बनाते हैं।",
+          "highlightWord": "हरित ऊर्जा",
+          "iconName": "Leaf",
+          "narrationScript": "नमस्ते! आइए समझते हैं कि पौधे प्रकाश संश्लेषण के द्वारा सूर्य की रोशनी से अपना भोजन और ऑक्सीजन कैसे बनाते हैं।",
+          "accentColor": "#10B981",
+          "durationInFrames": 344,
+          "durationInSeconds": 10.944,
+          "audioUrl": "/demos/photosynthesis-hi/scene-1.mp3",
+          "captions": [
+            {
+              "text": "नमस्ते",
+              "startMs": 100,
+              "endMs": 950
+            },
+            {
+              "text": "आइए",
+              "startMs": 1813,
+              "endMs": 2275
+            },
+            {
+              "text": "समझते",
+              "startMs": 2288,
+              "endMs": 2800
+            },
+            {
+              "text": "हैं",
+              "startMs": 2813,
+              "endMs": 3250
+            },
+            {
+              "text": "कि",
+              "startMs": 3263,
+              "endMs": 3525
+            },
+            {
+              "text": "पौधे",
+              "startMs": 3538,
+              "endMs": 3963
+            },
+            {
+              "text": "प्रकाश",
+              "startMs": 3975,
+              "endMs": 4438
+            },
+            {
+              "text": "संश्लेषण",
+              "startMs": 4450,
+              "endMs": 5138
+            },
+            {
+              "text": "के",
+              "startMs": 5150,
+              "endMs": 5300
+            },
+            {
+              "text": "द्वारा",
+              "startMs": 5313,
+              "endMs": 5725
+            },
+            {
+              "text": "सूर्य",
+              "startMs": 5738,
+              "endMs": 6163
+            },
+            {
+              "text": "की",
+              "startMs": 6175,
+              "endMs": 6338
+            },
+            {
+              "text": "रोशनी",
+              "startMs": 6350,
+              "endMs": 6863
+            },
+            {
+              "text": "से",
+              "startMs": 6875,
+              "endMs": 7125
+            },
+            {
+              "text": "अपना",
+              "startMs": 7138,
+              "endMs": 7513
+            },
+            {
+              "text": "भोजन",
+              "startMs": 7525,
+              "endMs": 7975
+            },
+            {
+              "text": "और",
+              "startMs": 7988,
+              "endMs": 8263
+            },
+            {
+              "text": "ऑक्सीजन",
+              "startMs": 8275,
+              "endMs": 8900
+            },
+            {
+              "text": "कैसे",
+              "startMs": 8913,
+              "endMs": 9275
+            },
+            {
+              "text": "बनाते",
+              "startMs": 9288,
+              "endMs": 9713
+            },
+            {
+              "text": "हैं",
+              "startMs": 9725,
+              "endMs": 10063
+            }
+          ]
+        },
+        {
+          "id": "photo-2-inputs",
+          "type": "SPLIT_EXPLAINER",
+          "heading": "क्लोरोप्लास्ट की अद्भुत रसोई",
+          "subtext": "पत्तियों में मौजूद क्लोरोफिल सौर ऊर्जा को रासायनिक ऊर्जा में बदलता है।",
+          "bulletPoints": [
+            "सूर्य का प्रकाश: पत्तियों के क्लोरोफिल द्वारा अवशोषित",
+            "जल और खनिज: जड़ों से तने के रास्ते पत्तियों तक",
+            "कार्बन डाइऑक्साइड: छोटे रंध्रों से हवा का प्रवेश"
+          ],
+          "highlightWord": "क्लोरोफिल",
+          "iconName": "Sun",
+          "narrationScript": "पत्तियों में मौजूद क्लोरोफिल सूर्य की ऊर्जा सोखता है। जड़ें पानी लाती हैं और पत्तियों के रंध्र हवा से कार्बन डाइऑक्साइड ग्रहण करते हैं।",
+          "accentColor": "#2DD4BF",
+          "durationInFrames": 353,
+          "durationInSeconds": 11.256,
+          "audioUrl": "/demos/photosynthesis-hi/scene-2.mp3",
+          "captions": [
+            {
+              "text": "पत्तियों",
+              "startMs": 100,
+              "endMs": 688
+            },
+            {
+              "text": "में",
+              "startMs": 700,
+              "endMs": 850
+            },
+            {
+              "text": "मौजूद",
+              "startMs": 863,
+              "endMs": 1413
+            },
+            {
+              "text": "क्लोरोफिल",
+              "startMs": 1425,
+              "endMs": 2013
+            },
+            {
+              "text": "सूर्य",
+              "startMs": 2025,
+              "endMs": 2413
+            },
+            {
+              "text": "की",
+              "startMs": 2425,
+              "endMs": 2613
+            },
+            {
+              "text": "ऊर्जा",
+              "startMs": 2625,
+              "endMs": 3013
+            },
+            {
+              "text": "सोखता",
+              "startMs": 3025,
+              "endMs": 3463
+            },
+            {
+              "text": "है",
+              "startMs": 3475,
+              "endMs": 3750
+            },
+            {
+              "text": "जड़ें",
+              "startMs": 4625,
+              "endMs": 5075
+            },
+            {
+              "text": "पानी",
+              "startMs": 5088,
+              "endMs": 5450
+            },
+            {
+              "text": "लाती",
+              "startMs": 5463,
+              "endMs": 5825
+            },
+            {
+              "text": "हैं",
+              "startMs": 5838,
+              "endMs": 6275
+            },
+            {
+              "text": "और",
+              "startMs": 6288,
+              "endMs": 6575
+            },
+            {
+              "text": "पत्तियों",
+              "startMs": 6588,
+              "endMs": 7088
+            },
+            {
+              "text": "के",
+              "startMs": 7100,
+              "endMs": 7250
+            },
+            {
+              "text": "रंध्र",
+              "startMs": 7263,
+              "endMs": 7638
+            },
+            {
+              "text": "हवा",
+              "startMs": 7650,
+              "endMs": 8000
+            },
+            {
+              "text": "से",
+              "startMs": 8013,
+              "endMs": 8225
+            },
+            {
+              "text": "कार्बन",
+              "startMs": 8238,
+              "endMs": 8788
+            },
+            {
+              "text": "डाइऑक्साइड",
+              "startMs": 8800,
+              "endMs": 9400
+            },
+            {
+              "text": "ग्रहण",
+              "startMs": 9413,
+              "endMs": 9738
+            },
+            {
+              "text": "करते",
+              "startMs": 9750,
+              "endMs": 10063
+            },
+            {
+              "text": "हैं",
+              "startMs": 10075,
+              "endMs": 10375
+            }
+          ]
+        },
+        {
+          "id": "photo-3-metric",
+          "type": "KEY_METRIC_OR_FACT",
+          "heading": "पृथ्वी की ऑक्सीजन का मुख्य स्रोत",
+          "subtext": "प्रकाश संश्लेषण से वायुमंडल की अधिकांश ऑक्सीजन और जैविक ऊर्जा उत्पन्न होती है।",
+          "highlightWord": "70%",
+          "iconName": "Sprout",
+          "narrationScript": "पृथ्वी के वायुमंडल की लगभग सत्तर प्रतिशत ऑक्सीजन महासागरों और पौधों के प्रकाश संश्लेषण से ही प्राप्त होती है।",
+          "accentColor": "#34D399",
+          "durationInFrames": 290,
+          "durationInSeconds": 9.144,
+          "audioUrl": "/demos/photosynthesis-hi/scene-3.mp3",
+          "captions": [
+            {
+              "text": "पृथ्वी",
+              "startMs": 100,
+              "endMs": 688
+            },
+            {
+              "text": "के",
+              "startMs": 700,
+              "endMs": 863
+            },
+            {
+              "text": "वायुमंडल",
+              "startMs": 875,
+              "endMs": 1563
+            },
+            {
+              "text": "की",
+              "startMs": 1575,
+              "endMs": 1725
+            },
+            {
+              "text": "लगभग",
+              "startMs": 1738,
+              "endMs": 2175
+            },
+            {
+              "text": "सत्तर",
+              "startMs": 2188,
+              "endMs": 2613
+            },
+            {
+              "text": "प्रतिशत",
+              "startMs": 2625,
+              "endMs": 3175
+            },
+            {
+              "text": "ऑक्सीजन",
+              "startMs": 3188,
+              "endMs": 3800
+            },
+            {
+              "text": "महासागरों",
+              "startMs": 3813,
+              "endMs": 4800
+            },
+            {
+              "text": "और",
+              "startMs": 4813,
+              "endMs": 5063
+            },
+            {
+              "text": "पौधों",
+              "startMs": 5075,
+              "endMs": 5513
+            },
+            {
+              "text": "के",
+              "startMs": 5525,
+              "endMs": 5650
+            },
+            {
+              "text": "प्रकाश",
+              "startMs": 5663,
+              "endMs": 6138
+            },
+            {
+              "text": "संश्लेषण",
+              "startMs": 6150,
+              "endMs": 6838
+            },
+            {
+              "text": "से",
+              "startMs": 6850,
+              "endMs": 6975
+            },
+            {
+              "text": "ही",
+              "startMs": 6988,
+              "endMs": 7250
+            },
+            {
+              "text": "प्राप्त",
+              "startMs": 7263,
+              "endMs": 7663
+            },
+            {
+              "text": "होती",
+              "startMs": 7675,
+              "endMs": 8000
+            },
+            {
+              "text": "है",
+              "startMs": 8013,
+              "endMs": 8263
+            }
+          ]
+        },
+        {
+          "id": "photo-4-summary",
+          "type": "SUMMARY_TAKEAWAY",
+          "heading": "मुख्य निष्कर्ष: प्रकृति का संतुलन",
+          "subtext": "हर पत्ती पृथ्वी पर जीवन और स्वच्छ वायु का आधार बनाती है।",
+          "bulletPoints": [
+            "सौर ऊर्जा से ग्लूकोज और जीवनदायी ऑक्सीजन का निर्माण",
+            "वायुमंडल से कार्बन डाइऑक्साइड कम करने में सहायक",
+            "खाद्य श्रृंखला के हर जीव के लिए ऊर्जा का मूल स्रोत"
+          ],
+          "highlightWord": "मुख्य बिंदु",
+          "iconName": "CheckCircle2",
+          "narrationScript": "संक्षेप में, प्रकाश संश्लेषण सौर ऊर्जा को भोजन में बदलता है, ऑक्सीजन मुक्त करता है, और पृथ्वी पर जीवन का संतुलन बनाए रखता है।",
+          "accentColor": "#10B981",
+          "durationInFrames": 351,
+          "durationInSeconds": 11.184,
+          "audioUrl": "/demos/photosynthesis-hi/scene-4.mp3",
+          "captions": [
+            {
+              "text": "संक्षेप",
+              "startMs": 100,
+              "endMs": 838
+            },
+            {
+              "text": "में",
+              "startMs": 850,
+              "endMs": 1175
+            },
+            {
+              "text": "प्रकाश",
+              "startMs": 1375,
+              "endMs": 1938
+            },
+            {
+              "text": "संश्लेषण",
+              "startMs": 1950,
+              "endMs": 2663
+            },
+            {
+              "text": "सौर",
+              "startMs": 2675,
+              "endMs": 3050
+            },
+            {
+              "text": "ऊर्जा",
+              "startMs": 3063,
+              "endMs": 3463
+            },
+            {
+              "text": "को",
+              "startMs": 3475,
+              "endMs": 3650
+            },
+            {
+              "text": "भोजन",
+              "startMs": 3663,
+              "endMs": 4063
+            },
+            {
+              "text": "में",
+              "startMs": 4075,
+              "endMs": 4213
+            },
+            {
+              "text": "बदलता",
+              "startMs": 4225,
+              "endMs": 4663
+            },
+            {
+              "text": "है",
+              "startMs": 4675,
+              "endMs": 4963
+            },
+            {
+              "text": "ऑक्सीजन",
+              "startMs": 5250,
+              "endMs": 5888
+            },
+            {
+              "text": "मुक्त",
+              "startMs": 5900,
+              "endMs": 6200
+            },
+            {
+              "text": "करता",
+              "startMs": 6213,
+              "endMs": 6550
+            },
+            {
+              "text": "है",
+              "startMs": 6563,
+              "endMs": 6850
+            },
+            {
+              "text": "और",
+              "startMs": 7088,
+              "endMs": 7350
+            },
+            {
+              "text": "पृथ्वी",
+              "startMs": 7363,
+              "endMs": 7838
+            },
+            {
+              "text": "पर",
+              "startMs": 7850,
+              "endMs": 8075
+            },
+            {
+              "text": "जीवन",
+              "startMs": 8088,
+              "endMs": 8500
+            },
+            {
+              "text": "का",
+              "startMs": 8513,
+              "endMs": 8663
+            },
+            {
+              "text": "संतुलन",
+              "startMs": 8675,
+              "endMs": 9263
+            },
+            {
+              "text": "बनाए",
+              "startMs": 9275,
+              "endMs": 9625
+            },
+            {
+              "text": "रखता",
+              "startMs": 9638,
+              "endMs": 10000
+            },
+            {
+              "text": "है",
+              "startMs": 10013,
+              "endMs": 10300
+            }
+          ]
+        }
+      ],
+      "totalDurationInFrames": 1338
+    }
+  },
+  {
+    "id": "rocket-engines",
+    "label": "How Rocket Engines Work",
+    "badge": "Aerospace Physics",
+    "languageLabel": "English (IN)",
+    "project": {
+      "id": "showcase-rocket-engines",
+      "topic": "How Rocket Engines Work",
+      "language": "en-IN",
+      "theme": "sunset_amber",
+      "aspectRatio": "16:9",
+      "fps": 30,
+      "scenes": [
+        {
+          "id": "rocket-1-hero",
+          "type": "TITLE_HERO",
+          "heading": "How Rocket Engines Defy Gravity",
+          "subtext": "Newton's third law turns intense chemical combustion into orbital thrust.",
+          "highlightWord": "PROPULSION",
+          "iconName": "Rocket",
+          "narrationScript": "How do massive rockets escape Earth's gravity? The secret lies in controlled combustion and Newton's third law of motion.",
+          "accentColor": "#F59E0B",
+          "durationInFrames": 285,
+          "durationInSeconds": 9,
+          "audioUrl": "/demos/rocket-engines/scene-1.mp3",
+          "captions": [
+            {
+              "text": "How",
+              "startMs": 100,
+              "endMs": 413
+            },
+            {
+              "text": "do",
+              "startMs": 425,
+              "endMs": 588
+            },
+            {
+              "text": "massive",
+              "startMs": 600,
+              "endMs": 1050
+            },
+            {
+              "text": "rockets",
+              "startMs": 1063,
+              "endMs": 1538
+            },
+            {
+              "text": "escape",
+              "startMs": 1550,
+              "endMs": 2025
+            },
+            {
+              "text": "Earth's",
+              "startMs": 2038,
+              "endMs": 2325
+            },
+            {
+              "text": "gravity",
+              "startMs": 2338,
+              "endMs": 2950
+            },
+            {
+              "text": "The",
+              "startMs": 3813,
+              "endMs": 4013
+            },
+            {
+              "text": "secret",
+              "startMs": 4025,
+              "endMs": 4513
+            },
+            {
+              "text": "lies",
+              "startMs": 4525,
+              "endMs": 4850
+            },
+            {
+              "text": "in",
+              "startMs": 4863,
+              "endMs": 4975
+            },
+            {
+              "text": "controlled",
+              "startMs": 4988,
+              "endMs": 5500
+            },
+            {
+              "text": "combustion",
+              "startMs": 5513,
+              "endMs": 6188
+            },
+            {
+              "text": "and",
+              "startMs": 6200,
+              "endMs": 6425
+            },
+            {
+              "text": "Newton's",
+              "startMs": 6438,
+              "endMs": 6875
+            },
+            {
+              "text": "third",
+              "startMs": 6888,
+              "endMs": 7200
+            },
+            {
+              "text": "law",
+              "startMs": 7213,
+              "endMs": 7413
+            },
+            {
+              "text": "of",
+              "startMs": 7425,
+              "endMs": 7588
+            },
+            {
+              "text": "motion",
+              "startMs": 7600,
+              "endMs": 8125
+            }
+          ]
+        },
+        {
+          "id": "rocket-2-metric",
+          "type": "KEY_METRIC_OR_FACT",
+          "heading": "Orbital Velocity Milestone",
+          "subtext": "Rockets must accelerate horizontally past 28,000 kilometers per hour to stay in orbit.",
+          "highlightWord": "28,000 km/h",
+          "iconName": "Gauge",
+          "narrationScript": "To reach low Earth orbit, a rocket engine must accelerate its payload beyond twenty eight thousand kilometers per hour.",
+          "accentColor": "#FB7185",
+          "durationInFrames": 268,
+          "durationInSeconds": 8.424,
+          "audioUrl": "/demos/rocket-engines/scene-2.mp3",
+          "captions": [
+            {
+              "text": "To",
+              "startMs": 100,
+              "endMs": 275
+            },
+            {
+              "text": "reach",
+              "startMs": 288,
+              "endMs": 588
+            },
+            {
+              "text": "low",
+              "startMs": 600,
+              "endMs": 888
+            },
+            {
+              "text": "Earth",
+              "startMs": 900,
+              "endMs": 1175
+            },
+            {
+              "text": "orbit",
+              "startMs": 1188,
+              "endMs": 1713
+            },
+            {
+              "text": "a",
+              "startMs": 1850,
+              "endMs": 1975
+            },
+            {
+              "text": "rocket",
+              "startMs": 1988,
+              "endMs": 2500
+            },
+            {
+              "text": "engine",
+              "startMs": 2513,
+              "endMs": 2875
+            },
+            {
+              "text": "must",
+              "startMs": 2888,
+              "endMs": 3213
+            },
+            {
+              "text": "accelerate",
+              "startMs": 3225,
+              "endMs": 3875
+            },
+            {
+              "text": "its",
+              "startMs": 3888,
+              "endMs": 4088
+            },
+            {
+              "text": "payload",
+              "startMs": 4100,
+              "endMs": 4588
+            },
+            {
+              "text": "beyond",
+              "startMs": 4600,
+              "endMs": 4988
+            },
+            {
+              "text": "twenty",
+              "startMs": 5000,
+              "endMs": 5450
+            },
+            {
+              "text": "eight",
+              "startMs": 5463,
+              "endMs": 5713
+            },
+            {
+              "text": "thousand",
+              "startMs": 5725,
+              "endMs": 6188
+            },
+            {
+              "text": "kilometers",
+              "startMs": 6200,
+              "endMs": 6913
+            },
+            {
+              "text": "per",
+              "startMs": 6925,
+              "endMs": 7225
+            },
+            {
+              "text": "hour",
+              "startMs": 7238,
+              "endMs": 7563
+            }
+          ]
+        },
+        {
+          "id": "rocket-3-flow",
+          "type": "STEP_BY_STEP_FLOW",
+          "heading": "Inside the Rocket Propulsion Cycle",
+          "subtext": "Three high-pressure stages convert stored propellant into forward thrust.",
+          "bulletPoints": [
+            "Mix: Fuel and liquid oxidizer enter the combustion chamber",
+            "Ignite: Superheated gas expands at extreme pressure",
+            "Accelerate: Bell nozzle exhausts gas for equal opposite thrust"
+          ],
+          "highlightWord": "THRUST CYCLE",
+          "iconName": "Flame",
+          "narrationScript": "First, fuel and oxidizer mix inside the chamber. Next, intense combustion creates high-pressure gas, which blasts through the bell nozzle to push the rocket upward.",
+          "accentColor": "#F59E0B",
+          "durationInFrames": 391,
+          "durationInSeconds": 12.504,
+          "audioUrl": "/demos/rocket-engines/scene-3.mp3",
+          "captions": [
+            {
+              "text": "First",
+              "startMs": 100,
+              "endMs": 688
+            },
+            {
+              "text": "fuel",
+              "startMs": 825,
+              "endMs": 1275
+            },
+            {
+              "text": "and",
+              "startMs": 1288,
+              "endMs": 1438
+            },
+            {
+              "text": "oxidizer",
+              "startMs": 1450,
+              "endMs": 2200
+            },
+            {
+              "text": "mix",
+              "startMs": 2213,
+              "endMs": 2500
+            },
+            {
+              "text": "inside",
+              "startMs": 2513,
+              "endMs": 2988
+            },
+            {
+              "text": "the",
+              "startMs": 3000,
+              "endMs": 3088
+            },
+            {
+              "text": "chamber",
+              "startMs": 3100,
+              "endMs": 3650
+            },
+            {
+              "text": "Next",
+              "startMs": 4525,
+              "endMs": 5113
+            },
+            {
+              "text": "intense",
+              "startMs": 5238,
+              "endMs": 5775
+            },
+            {
+              "text": "combustion",
+              "startMs": 5788,
+              "endMs": 6400
+            },
+            {
+              "text": "creates",
+              "startMs": 6413,
+              "endMs": 6900
+            },
+            {
+              "text": "high-pressure",
+              "startMs": 6913,
+              "endMs": 7563
+            },
+            {
+              "text": "gas",
+              "startMs": 7575,
+              "endMs": 8025
+            },
+            {
+              "text": "which",
+              "startMs": 8288,
+              "endMs": 8500
+            },
+            {
+              "text": "blasts",
+              "startMs": 8513,
+              "endMs": 9013
+            },
+            {
+              "text": "through",
+              "startMs": 9025,
+              "endMs": 9213
+            },
+            {
+              "text": "the",
+              "startMs": 9225,
+              "endMs": 9325
+            },
+            {
+              "text": "bell",
+              "startMs": 9338,
+              "endMs": 9625
+            },
+            {
+              "text": "nozzle",
+              "startMs": 9638,
+              "endMs": 10038
+            },
+            {
+              "text": "to",
+              "startMs": 10050,
+              "endMs": 10175
+            },
+            {
+              "text": "push",
+              "startMs": 10188,
+              "endMs": 10513
+            },
+            {
+              "text": "the",
+              "startMs": 10525,
+              "endMs": 10650
+            },
+            {
+              "text": "rocket",
+              "startMs": 10663,
+              "endMs": 11100
+            },
+            {
+              "text": "upward",
+              "startMs": 11113,
+              "endMs": 11638
+            }
+          ]
+        },
+        {
+          "id": "rocket-4-summary",
+          "type": "SUMMARY_TAKEAWAY",
+          "heading": "Rocket Propulsion Key Takeaways",
+          "subtext": "Carrying its own oxidizer lets a rocket fire even in the vacuum of space.",
+          "bulletPoints": [
+            "Onboard oxidizer enables thrust without atmospheric air",
+            "Bell nozzle converts thermal pressure into exhaust velocity",
+            "Multi-stage rockets shed empty tanks to reach orbit"
+          ],
+          "highlightWord": "ORBIT READY",
+          "iconName": "Orbit",
+          "narrationScript": "Remember: rockets carry their own oxidizer to burn in space, shape exhaust through a bell nozzle, and drop empty stages to reach orbit.",
+          "accentColor": "#34D399",
+          "durationInFrames": 324,
+          "durationInSeconds": 10.296,
+          "audioUrl": "/demos/rocket-engines/scene-4.mp3",
+          "captions": [
+            {
+              "text": "Remember",
+              "startMs": 100,
+              "endMs": 850
+            },
+            {
+              "text": "rockets",
+              "startMs": 1038,
+              "endMs": 1575
+            },
+            {
+              "text": "carry",
+              "startMs": 1588,
+              "endMs": 1950
+            },
+            {
+              "text": "their",
+              "startMs": 1963,
+              "endMs": 2200
+            },
+            {
+              "text": "own",
+              "startMs": 2213,
+              "endMs": 2450
+            },
+            {
+              "text": "oxidizer",
+              "startMs": 2463,
+              "endMs": 3200
+            },
+            {
+              "text": "to",
+              "startMs": 3213,
+              "endMs": 3388
+            },
+            {
+              "text": "burn",
+              "startMs": 3400,
+              "endMs": 3725
+            },
+            {
+              "text": "in",
+              "startMs": 3738,
+              "endMs": 3875
+            },
+            {
+              "text": "space",
+              "startMs": 3888,
+              "endMs": 4375
+            },
+            {
+              "text": "shape",
+              "startMs": 4550,
+              "endMs": 4975
+            },
+            {
+              "text": "exhaust",
+              "startMs": 4988,
+              "endMs": 5538
+            },
+            {
+              "text": "through",
+              "startMs": 5550,
+              "endMs": 5750
+            },
+            {
+              "text": "a",
+              "startMs": 5763,
+              "endMs": 5825
+            },
+            {
+              "text": "bell",
+              "startMs": 5838,
+              "endMs": 6138
+            },
+            {
+              "text": "nozzle",
+              "startMs": 6150,
+              "endMs": 6638
+            },
+            {
+              "text": "and",
+              "startMs": 6800,
+              "endMs": 7063
+            },
+            {
+              "text": "drop",
+              "startMs": 7075,
+              "endMs": 7450
+            },
+            {
+              "text": "empty",
+              "startMs": 7463,
+              "endMs": 7838
+            },
+            {
+              "text": "stages",
+              "startMs": 7850,
+              "endMs": 8388
+            },
+            {
+              "text": "to",
+              "startMs": 8400,
+              "endMs": 8538
+            },
+            {
+              "text": "reach",
+              "startMs": 8550,
+              "endMs": 8875
+            },
+            {
+              "text": "orbit",
+              "startMs": 8888,
+              "endMs": 9425
+            }
+          ]
+        }
+      ],
+      "totalDurationInFrames": 1268
+    }
+  },
+  {
+    "id": "ohms-law-gu",
+    "label": "ઓહ્મનો નિયમ",
+    "badge": "ભૌતિક વિજ્ઞાન",
+    "languageLabel": "ગુજરાતી (Gujarati)",
+    "project": {
+      "id": "showcase-ohms-law-gu",
+      "topic": "ઓહ્મનો નિયમ (Ohm's Law)",
+      "language": "gu-IN",
+      "theme": "clean_modern",
+      "aspectRatio": "16:9",
+      "fps": 30,
+      "scenes": [
+        {
+          "id": "ohm-1-hero",
+          "type": "TITLE_HERO",
+          "heading": "ઓહ્મનો નિયમ: વીજળીનું મૂળભૂત સૂત્ર",
+          "subtext": "કોઈ પણ ઇલેક્ટ્રિક સર્કિટમાં વોલ્ટેજ, પ્રવાહ અને અવરોધ વચ્ચેનો સીધો સંબંધ.",
+          "highlightWord": "વિદ્યુત શાસ્ત્ર",
+          "iconName": "Zap",
+          "narrationScript": "નમસ્તે! આજે આપણે ઓહ્મનો નિયમ શીખીશું, જે કોઈ પણ ઇલેક્ટ્રિક સર્કિટમાં વોલ્ટેજ, વિદ્યુત પ્રવાહ અને અવરોધ વચ્ચેનો સંબંધ સમજાવે છે.",
+          "accentColor": "#2563EB",
+          "durationInFrames": 493,
+          "durationInSeconds": 15.912,
+          "audioUrl": "/demos/ohms-law-gu/scene-1.mp3",
+          "captions": [
+            {
+              "text": "નમસ્તે",
+              "startMs": 100,
+              "endMs": 775
+            },
+            {
+              "text": "આજે",
+              "startMs": 1663,
+              "endMs": 2088
+            },
+            {
+              "text": "આપણે",
+              "startMs": 2100,
+              "endMs": 2563
+            },
+            {
+              "text": "ઓહ્મનો",
+              "startMs": 2600,
+              "endMs": 3125
+            },
+            {
+              "text": "નિયમ",
+              "startMs": 3163,
+              "endMs": 3500
+            },
+            {
+              "text": "શીખીશું",
+              "startMs": 3500,
+              "endMs": 4138
+            },
+            {
+              "text": "જે",
+              "startMs": 4550,
+              "endMs": 4750
+            },
+            {
+              "text": "કોઈ",
+              "startMs": 4850,
+              "endMs": 5050
+            },
+            {
+              "text": "પણ",
+              "startMs": 5125,
+              "endMs": 5288
+            },
+            {
+              "text": "ઇલેક્ટ્રિક",
+              "startMs": 5313,
+              "endMs": 5900
+            },
+            {
+              "text": "સર્કિટમાં",
+              "startMs": 5913,
+              "endMs": 6613
+            },
+            {
+              "text": "વોલ્ટેજ",
+              "startMs": 6638,
+              "endMs": 7263
+            },
+            {
+              "text": "વિદ્યુત",
+              "startMs": 7513,
+              "endMs": 7950
+            },
+            {
+              "text": "પ્રવાહ",
+              "startMs": 8050,
+              "endMs": 8450
+            },
+            {
+              "text": "અને",
+              "startMs": 8488,
+              "endMs": 8775
+            },
+            {
+              "text": "અવરોધ",
+              "startMs": 8888,
+              "endMs": 9325
+            },
+            {
+              "text": "વચ્ચેનો",
+              "startMs": 9375,
+              "endMs": 9950
+            },
+            {
+              "text": "સંબંધ",
+              "startMs": 9963,
+              "endMs": 10538
+            },
+            {
+              "text": "સમજાવે",
+              "startMs": 10575,
+              "endMs": 11163
+            },
+            {
+              "text": "છે",
+              "startMs": 11213,
+              "endMs": 11513
+            }
+          ]
+        },
+        {
+          "id": "ohm-2-formula",
+          "type": "KEY_METRIC_OR_FACT",
+          "heading": "ઓહ્મના નિયમનું સુપ્રસિદ્ધ સમીકરણ",
+          "subtext": "વોલ્ટેજ (V) બરાબર વિદ્યુત પ્રવાહ (I) ગુણ્યા અવરોધ (R).",
+          "highlightWord": "V = I × R",
+          "iconName": "Sigma",
+          "narrationScript": "ઓહ્મના નિયમ મુજબ, વોલ્ટેજ એ વિદ્યુત પ્રવાહ અને અવરોધના ગુણાકાર બરાબર હોય છે.",
+          "accentColor": "#0EA5E9",
+          "durationInFrames": 346,
+          "durationInSeconds": 11.016,
+          "audioUrl": "/demos/ohms-law-gu/scene-2.mp3",
+          "captions": [
+            {
+              "text": "ઓહ્મના",
+              "startMs": 100,
+              "endMs": 613
+            },
+            {
+              "text": "નિયમ",
+              "startMs": 650,
+              "endMs": 913
+            },
+            {
+              "text": "મુજબ",
+              "startMs": 913,
+              "endMs": 1363
+            },
+            {
+              "text": "વોલ્ટેજ",
+              "startMs": 1625,
+              "endMs": 2225
+            },
+            {
+              "text": "એ",
+              "startMs": 2313,
+              "endMs": 2463
+            },
+            {
+              "text": "વિદ્યુત",
+              "startMs": 2475,
+              "endMs": 2925
+            },
+            {
+              "text": "પ્રવાહ",
+              "startMs": 3038,
+              "endMs": 3425
+            },
+            {
+              "text": "અને",
+              "startMs": 3450,
+              "endMs": 3750
+            },
+            {
+              "text": "અવરોધના",
+              "startMs": 3850,
+              "endMs": 4513
+            },
+            {
+              "text": "ગુણાકાર",
+              "startMs": 4625,
+              "endMs": 5175
+            },
+            {
+              "text": "બરાબર",
+              "startMs": 5263,
+              "endMs": 5688
+            },
+            {
+              "text": "હોય",
+              "startMs": 5713,
+              "endMs": 5950
+            },
+            {
+              "text": "છે",
+              "startMs": 6013,
+              "endMs": 6313
+            }
+          ]
+        },
+        {
+          "id": "ohm-3-elements",
+          "type": "SPLIT_EXPLAINER",
+          "heading": "સર્કિટના ત્રણ મુખ્ય ઘટકો",
+          "subtext": "દરેક ઘટક ઇલેક્ટ્રોનના પ્રવાહને અલગ રીતે નિયંત્રિત કરે છે.",
+          "bulletPoints": [
+            "વોલ્ટેજ (V): ઇલેક્ટ્રોનને ધકેલતું વિદ્યુત દબાણ",
+            "પ્રવાહ (I): વાયરમાંથી વહેતા વીજભારનો દર",
+            "અવરોધ (R): પ્રવાહને રોકતી વાહકની લાક્ષણિકતા"
+          ],
+          "highlightWord": "V · I · R",
+          "iconName": "Cpu",
+          "narrationScript": "વોલ્ટેજ ઇલેક્ટ્રોનને આગળ ધકેલે છે, પ્રવાહ તેનો વહેવાનો દર દર્શાવે છે, અને અવરોધ તે પ્રવાહને નિયંત્રિત કરે છે.",
+          "accentColor": "#2563EB",
+          "durationInFrames": 436,
+          "durationInSeconds": 14.016,
+          "audioUrl": "/demos/ohms-law-gu/scene-3.mp3",
+          "captions": [
+            {
+              "text": "વોલ્ટેજ",
+              "startMs": 100,
+              "endMs": 700
+            },
+            {
+              "text": "ઇલેક્ટ્રોનને",
+              "startMs": 750,
+              "endMs": 1550
+            },
+            {
+              "text": "આગળ",
+              "startMs": 1650,
+              "endMs": 2038
+            },
+            {
+              "text": "ધકેલે",
+              "startMs": 2125,
+              "endMs": 2550
+            },
+            {
+              "text": "છે",
+              "startMs": 2600,
+              "endMs": 2913
+            },
+            {
+              "text": "પ્રવાહ",
+              "startMs": 3463,
+              "endMs": 3850
+            },
+            {
+              "text": "તેનો",
+              "startMs": 3950,
+              "endMs": 4238
+            },
+            {
+              "text": "વહેવાનો",
+              "startMs": 4250,
+              "endMs": 4838
+            },
+            {
+              "text": "દર",
+              "startMs": 4988,
+              "endMs": 5200
+            },
+            {
+              "text": "દર્શાવે",
+              "startMs": 5275,
+              "endMs": 5775
+            },
+            {
+              "text": "છે",
+              "startMs": 5825,
+              "endMs": 6150
+            },
+            {
+              "text": "અને",
+              "startMs": 6500,
+              "endMs": 6775
+            },
+            {
+              "text": "અવરોધ",
+              "startMs": 6863,
+              "endMs": 7350
+            },
+            {
+              "text": "તે",
+              "startMs": 7463,
+              "endMs": 7625
+            },
+            {
+              "text": "પ્રવાહને",
+              "startMs": 7725,
+              "endMs": 8325
+            },
+            {
+              "text": "નિયંત્રિત",
+              "startMs": 8363,
+              "endMs": 8938
+            },
+            {
+              "text": "કરે",
+              "startMs": 8988,
+              "endMs": 9213
+            },
+            {
+              "text": "છે",
+              "startMs": 9263,
+              "endMs": 9550
+            }
+          ]
+        },
+        {
+          "id": "ohm-4-summary",
+          "type": "SUMMARY_TAKEAWAY",
+          "heading": "ઓહ્મના નિયમનો સારાંશ",
+          "subtext": "સ્માર્ટફોન ચાર્જરથી લઈને પાવર ગ્રીડ સુધી દરેક જગ્યાએ ઉપયોગી.",
+          "bulletPoints": [
+            "અચળ અવરોધે વોલ્ટેજ વધતાં પ્રવાહ પણ વધે છે",
+            "અવરોધ વધારવાથી સર્કિટમાં વિદ્યુત પ્રવાહ ઘટે છે",
+            "સુરક્ષિત ઈલેક્ટ્રોનિક ડિઝાઇન માટે અનિવાર્ય નિયમ"
+          ],
+          "highlightWord": "મુખ્ય મુદ્દા",
+          "iconName": "CheckCircle2",
+          "narrationScript": "યાદ રાખો: અવરોધ અચળ હોય ત્યારે વોલ્ટેજ વધે તો પ્રવાહ વધે છે, અને ઓહ્મનો નિયમ દરેક સુરક્ષિત ઇલેક્ટ્રોનિક ડિઝાઇનનો આધાર છે.",
+          "accentColor": "#059669",
+          "durationInFrames": 457,
+          "durationInSeconds": 14.712,
+          "audioUrl": "/demos/ohms-law-gu/scene-4.mp3",
+          "captions": [
+            {
+              "text": "યાદ",
+              "startMs": 100,
+              "endMs": 475
+            },
+            {
+              "text": "રાખો",
+              "startMs": 525,
+              "endMs": 1013
+            },
+            {
+              "text": "અવરોધ",
+              "startMs": 1175,
+              "endMs": 1600
+            },
+            {
+              "text": "અચળ",
+              "startMs": 1700,
+              "endMs": 2038
+            },
+            {
+              "text": "હોય",
+              "startMs": 2063,
+              "endMs": 2363
+            },
+            {
+              "text": "ત્યારે",
+              "startMs": 2475,
+              "endMs": 2825
+            },
+            {
+              "text": "વોલ્ટેજ",
+              "startMs": 2863,
+              "endMs": 3450
+            },
+            {
+              "text": "વધે",
+              "startMs": 3450,
+              "endMs": 3800
+            },
+            {
+              "text": "તો",
+              "startMs": 3913,
+              "endMs": 4063
+            },
+            {
+              "text": "પ્રવાહ",
+              "startMs": 4163,
+              "endMs": 4538
+            },
+            {
+              "text": "વધે",
+              "startMs": 4550,
+              "endMs": 4875
+            },
+            {
+              "text": "છે",
+              "startMs": 4913,
+              "endMs": 5225
+            },
+            {
+              "text": "અને",
+              "startMs": 5575,
+              "endMs": 5838
+            },
+            {
+              "text": "ઓહ્મનો",
+              "startMs": 5900,
+              "endMs": 6400
+            },
+            {
+              "text": "નિયમ",
+              "startMs": 6438,
+              "endMs": 6800
+            },
+            {
+              "text": "દરેક",
+              "startMs": 6875,
+              "endMs": 7200
+            },
+            {
+              "text": "સુરક્ષિત",
+              "startMs": 7238,
+              "endMs": 7800
+            },
+            {
+              "text": "ઇલેક્ટ્રોનિક",
+              "startMs": 7900,
+              "endMs": 8613
+            },
+            {
+              "text": "ડિઝાઇનનો",
+              "startMs": 8713,
+              "endMs": 9338
+            },
+            {
+              "text": "આધાર",
+              "startMs": 9350,
+              "endMs": 9825
+            },
+            {
+              "text": "છે",
+              "startMs": 9888,
+              "endMs": 10175
+            }
+          ]
+        }
+      ],
+      "totalDurationInFrames": 1732
+    }
+  }
+];
+
+export const SHOWCASE_PRESETS: ShowcasePreset[] = RAW_SHOWCASE_PRESETS.map(
+  (preset) => ({
+    ...preset,
+    project: VideoProjectSchema.parse(preset.project),
+  })
+);
+
+export const DEFAULT_SHOWCASE_PROJECT: VideoProject = SHOWCASE_PRESETS[0].project;
