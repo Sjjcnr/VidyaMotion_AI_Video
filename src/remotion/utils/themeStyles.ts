@@ -253,13 +253,24 @@ export function getThemePalette(themeId: ThemeId, customAccentColor?: string): T
   };
 }
 
+export type ExportResolution = "720p" | "1080p";
+
 /**
- * Even canvas dimensions (1920x1080 or 1080x1920) required by H.264 in @remotion/web-renderer.
+ * Even canvas dimensions required by H.264 in @remotion/web-renderer.
+ * Supports 1080p (Studio Master: 1920x1080 / 1080x1920) and 720p (Fast Export: 1280x720 / 720x1280).
  */
-export function getCanvasDimensions(aspectRatio: AspectRatio): {
+export function getCanvasDimensions(
+  aspectRatio: AspectRatio,
+  resolution: ExportResolution = "1080p"
+): {
   width: number;
   height: number;
 } {
+  if (resolution === "720p") {
+    return aspectRatio === "9:16"
+      ? { width: 720, height: 1280 }
+      : { width: 1280, height: 720 };
+  }
   return aspectRatio === "9:16"
     ? { width: 1080, height: 1920 }
     : { width: 1920, height: 1080 };

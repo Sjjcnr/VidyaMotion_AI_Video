@@ -151,7 +151,7 @@ export function App() {
             <VideoPreviewPanel
               project={currentProject}
               playerRef={playerRef}
-              onExport={() => exportVideo(currentProject)}
+              onExport={(resolution) => exportVideo(currentProject, resolution)}
               onCancelExport={cancelExport}
               isExporting={isExporting}
               exportProgress={exportProgress}

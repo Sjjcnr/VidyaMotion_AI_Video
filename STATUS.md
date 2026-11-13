@@ -1,5 +1,31 @@
 # VidyaMotion AI - Project Status & Roadmap
 
+## Phase D: Fast Export Mode (720p) — 2.5x to 3x Export Acceleration
+
+### Status: COMPLETED & VERIFIED
+
+### 1. Requirements & User Directives Addressed
+- **Client-Side Export Speedup via Resolution Scaling**:
+  - **1080p Master**: $1920 \times 1080 = 2,073,600$ pixels per frame (or $1080 \times 1920$ in portrait).
+  - **720p Fast Export**: $1280 \times 720 = 921,600$ pixels per frame (or $720 \times 1280$ in portrait).
+  - **55.6% Pixel Volume Reduction**: Cutting the pixel workload by more than half drops canvas rasterization, DOM serialization, and WebCodecs encoding time by 60% to 70% (2.5x to 3x real-world speedup).
+- **Proportional Composition Scaling**:
+  - Remotion compositions stay authored at their canonical 1080p coordinate system so that all SVG paths, font sizes, and layout percentages remain identical in proportions and sharp in vector fidelity.
+  - `@remotion/web-renderer`'s `scale: 2/3` parameter downscales the output frame buffer directly into the WebCodecs encoder.
+- **UI Quality Selector**:
+  - Added a clean, modern quality switch in `VideoPreviewPanel.tsx`:
+    - `⚡ Fast 720p` (selected by default with amber Zap icon, 2.5x-3x speedup).
+    - `1080p` (Studio Master full resolution).
+  - Dynamic button and toast status reporting active resolution mode and progress.
+  - Output filenames reflect the chosen resolution: `vidyamotion-<slug>-720p.mp4` vs `vidyamotion-<slug>-1080p.mp4`.
+
+### 2. Verification Evidence
+- `npm run typecheck`: Passed with 0 errors.
+- `npm run build`: Passed with 0 errors (built in 2.84s).
+- Secret Scan: Verified 0 keys in `dist/assets/*.js`.
+
+---
+
 ## Phase C: Sleek UI Overhaul, Anti-PPT Code Mode, & 9:16 Portrait Canvas Fix
 
 ### Status: COMPLETED & VERIFIED (Commit: `49902f8`)

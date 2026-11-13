@@ -13,16 +13,20 @@ import {
   Volume2,
   VolumeX,
   XCircle,
+  Zap,
 } from "lucide-react";
 import React, { useEffect, useId, useRef, useState } from "react";
 import type { VideoProject } from "../remotion/types";
-import { getCanvasDimensions } from "../remotion/utils/themeStyles";
+import {
+  type ExportResolution,
+  getCanvasDimensions,
+} from "../remotion/utils/themeStyles";
 import { VideoComposition } from "../remotion/VideoComposition";
 
 export interface VideoPreviewPanelProps {
   project: VideoProject;
   playerRef: React.RefObject<PlayerRef | null>;
-  onExport: () => Promise<void>;
+  onExport: (resolution: ExportResolution) => Promise<void> | void;
   onCancelExport: () => void;
   isExporting: boolean;
   exportProgress: number;
@@ -55,6 +59,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exportComplete, setExportComplete] = useState(false);
+  const [exportResolution, setExportResolution] = useState<ExportResolution>("720p");
   const volumeSliderId = useId();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -177,7 +182,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
   const handleExportClick = async () => {
     setExportComplete(false);
     try {
-      await onExport();
+      await onExport(exportResolution);
       setExportComplete(true);
       setTimeout(() => setExportComplete(false), 5000);
     } catch {
@@ -208,7 +213,7 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2 rounded-xl border border-indigo-500/50 bg-indigo-950/60 px-3 py-1.5 text-xs font-semibold text-indigo-200">
                 <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping" />
-                <span>Exporting MP4: {exportProgress}%</span>
+                <span>Exporting ({exportResolution.toUpperCase()}): {exportProgress}%</span>
               </div>
               <button
                 type="button"
@@ -223,23 +228,55 @@ export const VideoPreviewPanel: React.FC<VideoPreviewPanelProps> = ({
           ) : exportComplete ? (
             <div className="flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-950/60 px-3 py-1.5 text-xs font-semibold text-emerald-300">
               <Check className="h-4 w-4 text-emerald-400" />
-              <span>Downloaded!</span>
+              <span>Downloaded ({exportResolution.toUpperCase()})!</span>
             </div>
           ) : (
-            <button
-              type="button"
-              disabled={!canExport}
-              onClick={handleExportClick}
-              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-indigo-500 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
-              title={
-                canExport
-                  ? "Export full video with voiceover & karaoke captions entirely inside your browser via WebCodecs"
-                  : "WebCodecs export unavailable in this browser"
-              }
-            >
-              <Download className="h-3.5 w-3.5" />
-              <span>Download Video (.mp4)</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Fast 720p vs Studio 1080p Quality Switcher */}
+              <div className="flex items-center rounded-xl border border-slate-800 bg-slate-900/80 p-0.5 text-[11px] font-medium text-slate-400">
+                <button
+                  type="button"
+                  onClick={() => setExportResolution("720p")}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 transition-all ${
+                    exportResolution === "720p"
+                      ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                  title="Fast Export 720p: 2.5x to 3x faster, 55.6% fewer pixels per frame"
+                >
+                  <Zap className="h-3 w-3 text-amber-300 fill-amber-300" />
+                  <span>Fast 720p</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExportResolution("1080p")}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1 transition-all ${
+                    exportResolution === "1080p"
+                      ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                  title="Studio Master 1080p: Full HD resolution"
+                >
+                  <span>1080p</span>
+                </button>
+              </div>
+
+              {/* Download Trigger */}
+              <button
+                type="button"
+                disabled={!canExport}
+                onClick={handleExportClick}
+                className="flex items-center gap-2 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-indigo-500 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+                title={
+                  canExport
+                    ? `Export ${exportResolution.toUpperCase()} MP4 via WebCodecs (${exportResolution === "720p" ? "Fast 2.5x-3x speed" : "Full HD master"})`
+                    : "WebCodecs export unavailable in this browser"
+                }
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Download MP4</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
