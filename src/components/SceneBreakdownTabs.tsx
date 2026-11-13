@@ -1,13 +1,17 @@
 import {
+  AlertTriangle,
   Check,
-  ChevronRight,
   Clock,
+  Code2,
   Copy,
   Edit3,
   FileText,
   Layers,
+  Loader2,
   Mic,
   PlayCircle,
+  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import React, { useId, useMemo, useState } from "react";
 import type { VideoProject } from "../remotion/types";
@@ -18,6 +22,7 @@ export interface SceneBreakdownTabsProps {
   onUpdateHeading: (sceneId: string, newHeading: string) => void;
   onUpdateIcon: (sceneId: string, newIcon: string) => void;
   onSeekToScene?: (startFrame: number) => void;
+  onRegenerateScene?: (sceneId: string, instruction?: string) => Promise<boolean>;
 }
 
 const POPULAR_ICONS = [
@@ -54,44 +59,30 @@ const VOICE_INFO: Record<string, string> = {
   "en-US": "en-US-JennyNeural (Neural US English)",
 };
 
-const SCENE_TYPE_BADGES: Record<string, { label: string; color: string }> = {
-  TITLE_HERO: {
-    label: "Title Hero",
-    color: "bg-cyan-950/60 text-cyan-300 border-cyan-500/30",
-  },
-  SPLIT_EXPLAINER: {
-    label: "Split Explainer",
-    color: "bg-blue-950/60 text-blue-300 border-blue-500/30",
-  },
-  KEY_METRIC_OR_FACT: {
-    label: "Key Metric / Fact",
-    color: "bg-amber-950/60 text-amber-300 border-amber-500/30",
-  },
-  STEP_BY_STEP_FLOW: {
-    label: "Step-by-Step Flow",
-    color: "bg-violet-950/60 text-violet-300 border-violet-500/30",
-  },
-  SUMMARY_TAKEAWAY: {
-    label: "Summary Takeaway",
-    color: "bg-emerald-950/60 text-emerald-300 border-emerald-500/30",
-  },
-};
-
 export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
   project,
   onUpdateHeading,
   onUpdateIcon,
   onSeekToScene,
+  onRegenerateScene,
 }) => {
-  const [activeTab, setActiveTab] = useState<"breakdown" | "transcript">(
+  const [activeTab, setActiveTab] = useState<"breakdown" | "transcript" | "code">(
     "breakdown"
   );
   const [copiedAll, setCopiedAll] = useState(false);
   const [copiedSceneId, setCopiedSceneId] = useState<string | null>(null);
+  const [copiedCodeSceneId, setCopiedCodeSceneId] = useState<string | null>(null);
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
-  const [iconPickerSceneId, setIconPickerSceneId] = useState<string | null>(
-    null
+  const [iconPickerSceneId, setIconPickerSceneId] = useState<string | null>(null);
+  const [selectedCodeSceneId, setSelectedCodeSceneId] = useState<string>(
+    project.scenes[0]?.id || ""
   );
+
+  // Per-scene regeneration instruction state
+  const [regeneratingSceneId, setRegeneratingSceneId] = useState<string | null>(null);
+  const [showPromptBoxSceneId, setShowPromptBoxSceneId] = useState<string | null>(null);
+  const [customInstructions, setCustomInstructions] = useState<Record<string, string>>({});
+
   const headingInputIdPrefix = useId();
 
   // Compute start frames for each scene sequentially
@@ -122,7 +113,7 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
     const fullScript = project.scenes
       .map(
         (s, i) =>
-          `[Scene ${i + 1}: ${s.heading} (${s.type})]\n${s.narrationScript}`
+          `[Scene ${i + 1}: ${s.heading}]\n${s.narrationScript}`
       )
       .join("\n\n");
 
@@ -144,6 +135,35 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
       console.warn("Failed to copy scene:", err);
     }
   };
+
+  const handleCopyCode = async (sceneId: string, code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCodeSceneId(sceneId);
+      setTimeout(() => setCopiedCodeSceneId(null), 2000);
+    } catch (err) {
+      console.warn("Failed to copy code:", err);
+    }
+  };
+
+  const handleRegenerate = async (sceneId: string) => {
+    if (!onRegenerateScene) return;
+    const instruction = customInstructions[sceneId]?.trim() || undefined;
+    setRegeneratingSceneId(sceneId);
+    try {
+      await onRegenerateScene(sceneId, instruction);
+      setShowPromptBoxSceneId(null);
+    } finally {
+      setRegeneratingSceneId(null);
+    }
+  };
+
+  const activeCodeScene = useMemo(() => {
+    return (
+      project.scenes.find((s) => s.id === selectedCodeSceneId) ||
+      project.scenes[0]
+    );
+  }, [project.scenes, selectedCodeSceneId]);
 
   return (
     <div className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl backdrop-blur-md">
@@ -173,9 +193,30 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
             }`}
           >
             <FileText className="h-3.5 w-3.5" />
-            <span>Narration Transcript</span>
+            <span>Voiceover Transcript</span>
             <span className="rounded bg-slate-800 px-1.5 py-0.2 text-[10px] text-slate-400">
               {totalWords} words
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("code");
+              if (!selectedCodeSceneId && project.scenes[0]) {
+                setSelectedCodeSceneId(project.scenes[0].id);
+              }
+            }}
+            className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+              activeTab === "code"
+                ? "border border-cyan-500/40 bg-cyan-950/60 text-cyan-300 shadow-sm shadow-cyan-500/10"
+                : "border border-transparent text-slate-400 hover:bg-slate-800/70 hover:text-slate-200"
+            }`}
+          >
+            <Code2 className="h-3.5 w-3.5" />
+            <span>View Generated Code</span>
+            <span className="rounded bg-cyan-950/80 border border-cyan-800/50 px-1.5 py-0.2 text-[10px] text-cyan-300 font-mono">
+              AI TSX
             </span>
           </button>
         </div>
@@ -206,43 +247,51 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
         <div className="mt-4 flex flex-col gap-3">
           <div className="text-[11px] text-slate-400 flex items-center justify-between">
             <span>
-              💡 Click any scene title to edit live, swap icons, or jump to its start frame in the player.
+              💡 Each scene is coded dynamically in Remotion TSX. Click title to edit, or Regenerate to rewrite with custom AI instructions.
             </span>
             <span className="font-mono text-cyan-400">
-              Total: {Math.round(project.totalDurationInFrames / 30)}s (
-              {project.totalDurationInFrames} frames)
+              Total: {Math.round(project.totalDurationInFrames / 30)}s ({project.totalDurationInFrames} frames)
             </span>
           </div>
 
           <div className="grid grid-cols-1 gap-3">
             {sceneTimeline.map(({ scene, index, fromFrame, durationInFrames, durationInSeconds }) => {
               const IconComponent = resolveLucideIcon(scene.iconName);
-              const badge = (scene.type ? SCENE_TYPE_BADGES[scene.type] : undefined) || {
-                label: scene.type || "AI Scene",
-                color: "bg-slate-800 text-slate-300 border-slate-700",
-              };
               const isEditing = editingSceneId === scene.id;
               const isPickingIcon = iconPickerSceneId === scene.id;
+              const isRegenerating = regeneratingSceneId === scene.id;
+              const showPromptBox = showPromptBoxSceneId === scene.id;
 
               return (
                 <div
                   key={scene.id}
                   className="flex flex-col gap-2 rounded-xl border border-slate-800/80 bg-slate-950/70 p-3.5 transition-all hover:border-slate-700 hover:bg-slate-950/90"
                 >
-                  {/* Top row: Badges, jump button, duration */}
+                  {/* Top row: Badges, jump button, duration, Regenerate button */}
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 font-mono text-[10px] font-bold text-slate-300">
                         {index + 1}
                       </span>
-                      <span
-                        className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${badge.color}`}
-                      >
-                        {badge.label}
+
+                      {/* Model Badge */}
+                      <span className="flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-950/60 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
+                        <Sparkles className="h-2.5 w-2.5 text-cyan-400" />
+                        <span>{scene.modelUsed || "gemini-3.8-flash"}</span>
                       </span>
-                      {scene.highlightWord && (
-                        <span className="rounded bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-mono text-amber-300">
-                          Key: {scene.highlightWord}
+
+                      {/* Correction Status Badge */}
+                      {scene.isCorrected && (
+                        <span className="rounded-md border border-emerald-500/30 bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                          ✓ Corrected
+                        </span>
+                      )}
+
+                      {/* Placeholder Fallback Status */}
+                      {scene.isPlaceholder && (
+                        <span className="flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-950/60 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+                          <AlertTriangle className="h-2.5 w-2.5 text-amber-400" />
+                          <span>Fallback Card</span>
                         </span>
                       )}
                     </div>
@@ -261,15 +310,69 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                           title={`Jump to frame ${fromFrame}`}
                         >
                           <PlayCircle className="h-3 w-3" />
-                          <span>Jump @ {fromFrame}f</span>
+                          <span>Jump</span>
+                        </button>
+                      )}
+
+                      {/* Regenerate Button */}
+                      {onRegenerateScene && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowPromptBoxSceneId(showPromptBox ? null : scene.id)
+                          }
+                          disabled={isRegenerating}
+                          className="flex items-center gap-1 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300 hover:border-cyan-500 hover:text-white transition-all disabled:opacity-50"
+                        >
+                          {isRegenerating ? (
+                            <Loader2 className="h-3 w-3 animate-spin text-cyan-400" />
+                          ) : (
+                            <RefreshCw className="h-3 w-3 text-cyan-400" />
+                          )}
+                          <span>{isRegenerating ? "Coding..." : "Regenerate"}</span>
                         </button>
                       )}
                     </div>
                   </div>
 
+                  {/* Expandable Regeneration Instruction Box */}
+                  {showPromptBox && (
+                    <div className="mt-1 flex flex-col gap-2 rounded-lg border border-cyan-900/60 bg-cyan-950/30 p-2.5">
+                      <div className="text-[11px] font-medium text-cyan-300">
+                        Regeneration Instruction (Optional):
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="e.g. make the diagram bigger, show chemical bonds, add step numbers..."
+                          value={customInstructions[scene.id] || ""}
+                          onChange={(e) =>
+                            setCustomInstructions({
+                              ...customInstructions,
+                              [scene.id]: e.target.value,
+                            })
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleRegenerate(scene.id);
+                            }
+                          }}
+                          className="flex-1 rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRegenerate(scene.id)}
+                          disabled={isRegenerating}
+                          className="rounded-md bg-cyan-600 px-3 py-1 text-xs font-semibold text-white hover:bg-cyan-500 disabled:opacity-50"
+                        >
+                          {isRegenerating ? "Generating..." : "Generate Code"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Middle row: Icon, editable title */}
                   <div className="flex items-start gap-3 mt-1">
-                    {/* Icon Trigger / Selector */}
                     <div className="relative">
                       <button
                         type="button"
@@ -282,7 +385,6 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                         <IconComponent className="h-5 w-5" />
                       </button>
 
-                      {/* Icon Picker Popover */}
                       {isPickingIcon && (
                         <div className="absolute left-0 top-12 z-50 w-64 rounded-xl border border-slate-800 bg-slate-900 p-2.5 shadow-2xl backdrop-blur-xl">
                           <div className="mb-2 text-[10px] font-semibold uppercase text-slate-400">
@@ -315,7 +417,6 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                       )}
                     </div>
 
-                    {/* Heading (inline editable) */}
                     <div className="flex-1">
                       {isEditing ? (
                         <div className="flex items-center gap-1.5">
@@ -371,19 +472,12 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                         </p>
                       )}
 
-                      {/* Bullet points (if any) */}
-                      {scene.bulletPoints && scene.bulletPoints.length > 0 && (
-                        <ul className="mt-2 space-y-1">
-                          {scene.bulletPoints.map((pt, pIdx) => (
-                            <li
-                              key={pIdx}
-                              className="flex items-center gap-1.5 text-xs text-slate-300"
-                            >
-                              <ChevronRight className="h-3 w-3 text-cyan-400 shrink-0" />
-                              <span>{pt}</span>
-                            </li>
-                          ))}
-                        </ul>
+                      {/* Visual Brief Display */}
+                      {scene.visualBrief && (
+                        <div className="mt-2 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1.5 text-xs text-slate-300">
+                          <span className="font-semibold text-cyan-400">Visual Plan: </span>
+                          <span className="italic">{scene.visualBrief}</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -397,13 +491,10 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
       {/* Tab 2: Narration Transcript */}
       {activeTab === "transcript" && (
         <div className="mt-4 flex flex-col gap-3">
-          {/* Accent and Voice pill */}
           <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 px-3.5 py-2 text-xs">
             <div className="flex items-center gap-2">
               <Mic className="h-3.5 w-3.5 text-cyan-400" />
-              <span className="text-slate-300">
-                Active Edge-TTS Neural Voice:
-              </span>
+              <span className="text-slate-300">Active Edge-TTS Neural Voice:</span>
               <span className="font-semibold text-cyan-300">
                 {VOICE_INFO[project.language] || project.language}
               </span>
@@ -413,7 +504,6 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
             </span>
           </div>
 
-          {/* Transcript cards */}
           <div className="space-y-3">
             {project.scenes.map((scene, idx) => {
               const wordCount = scene.narrationScript
@@ -458,13 +548,86 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
                     </div>
                   </div>
 
-                  <p className="text-xs leading-relaxed text-slate-300/90 whitespace-pre-line font-normal">
+                  <p className="text-xs leading-relaxed text-slate-300 font-sans">
                     {scene.narrationScript}
                   </p>
                 </div>
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Tab 3: View Generated Code */}
+      {activeTab === "code" && (
+        <div className="mt-4 flex flex-col gap-3">
+          {/* Scene selector sub-bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+              {project.scenes.map((s, idx) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSelectedCodeSceneId(s.id)}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                    activeCodeScene?.id === s.id
+                      ? "bg-cyan-500 text-slate-950 font-bold shadow"
+                      : "bg-slate-800 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Scene {idx + 1}
+                </button>
+              ))}
+            </div>
+
+            {activeCodeScene && (
+              <button
+                type="button"
+                onClick={() =>
+                  handleCopyCode(activeCodeScene.id, activeCodeScene.code || "")
+                }
+                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-slate-300 hover:text-white transition-all"
+              >
+                {copiedCodeSceneId === activeCodeScene.id ? (
+                  <>
+                    <Check className="h-3 w-3 text-emerald-400" />
+                    <span className="text-emerald-300">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3" />
+                    <span>Copy TSX</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          {activeCodeScene ? (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between text-xs text-slate-400">
+                <span>
+                  Component for: <strong className="text-slate-200">{activeCodeScene.heading}</strong>
+                </span>
+                <span className="font-mono text-[11px] text-cyan-400">
+                  Model: {activeCodeScene.modelUsed || "AI Generated"} ·{" "}
+                  {activeCodeScene.code ? `${activeCodeScene.code.length} chars` : "0 chars"}
+                </span>
+              </div>
+
+              {activeCodeScene.code ? (
+                <pre className="max-h-96 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-xs text-cyan-200/90 leading-relaxed">
+                  <code>{activeCodeScene.code}</code>
+                </pre>
+              ) : (
+                <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-6 text-center text-xs text-slate-500">
+                  No custom TSX code generated yet for this scene (currently running in fallback mode).
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-slate-500">No scenes available.</div>
+          )}
         </div>
       )}
     </div>

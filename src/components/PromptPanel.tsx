@@ -328,7 +328,7 @@ export const PromptPanel: React.FC<PromptPanelProps> = ({
                   }`}
                 >
                   <Volume2 className="h-3.5 w-3.5" />
-                  <span>2. Voiceover</span>
+                  <span>2. Voice & Code</span>
                 </div>
                 <div
                   className={`flex flex-col items-center gap-1 text-center ${

@@ -23,6 +23,7 @@ export function App() {
     loadPreset,
     updateSceneHeading,
     updateSceneIcon,
+    regenerateScene,
     generateVideo,
     cancelGeneration,
     deleteSavedProject,
@@ -162,6 +163,7 @@ export function App() {
               onUpdateHeading={updateSceneHeading}
               onUpdateIcon={updateSceneIcon}
               onSeekToScene={handleSeekToScene}
+              onRegenerateScene={regenerateScene}
             />
           </section>
         </div>

@@ -1,94 +1,12 @@
 import { Audio } from "@remotion/media";
 import React from "react";
 import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
+import { DynamicSceneRunner } from "./components/DynamicSceneRunner";
 import { KaraokeCaptionsOverlay } from "./components/KaraokeCaptionsOverlay";
 import { SceneBackground } from "./components/SceneBackground";
 import { getFontFamilyForLanguage, useProjectFonts } from "./fonts";
-import { KeyMetricOrFactScene } from "./scenes/KeyMetricOrFactScene";
-import { SplitExplainerScene } from "./scenes/SplitExplainerScene";
-import { StepByStepFlowScene } from "./scenes/StepByStepFlowScene";
-import { SummaryTakeawayScene } from "./scenes/SummaryTakeawayScene";
-import { TitleHeroScene } from "./scenes/TitleHeroScene";
-import type { Scene, VideoProject } from "./types";
-import { getThemePalette, type ThemePalette } from "./utils/themeStyles";
-
-interface SceneSwitchProps {
-  scene: Scene;
-  palette: ThemePalette;
-  fontFamily: string;
-  project: VideoProject;
-}
-
-const SceneContent: React.FC<SceneSwitchProps> = ({
-  scene,
-  palette,
-  fontFamily,
-  project,
-}) => {
-  switch (scene.type) {
-    case "TITLE_HERO":
-      return (
-        <TitleHeroScene
-          scene={scene}
-          palette={palette}
-          theme={project.theme}
-          language={project.language}
-          fontFamily={fontFamily}
-          topic={project.topic}
-        />
-      );
-    case "SPLIT_EXPLAINER":
-      return (
-        <SplitExplainerScene
-          scene={scene}
-          palette={palette}
-          theme={project.theme}
-          language={project.language}
-          fontFamily={fontFamily}
-        />
-      );
-    case "KEY_METRIC_OR_FACT":
-      return (
-        <KeyMetricOrFactScene
-          scene={scene}
-          palette={palette}
-          theme={project.theme}
-          language={project.language}
-          fontFamily={fontFamily}
-        />
-      );
-    case "STEP_BY_STEP_FLOW":
-      return (
-        <StepByStepFlowScene
-          scene={scene}
-          palette={palette}
-          theme={project.theme}
-          language={project.language}
-          fontFamily={fontFamily}
-        />
-      );
-    case "SUMMARY_TAKEAWAY":
-      return (
-        <SummaryTakeawayScene
-          scene={scene}
-          palette={palette}
-          theme={project.theme}
-          language={project.language}
-          fontFamily={fontFamily}
-        />
-      );
-    default:
-      return (
-        <SplitExplainerScene
-          scene={scene}
-          palette={palette}
-          theme={project.theme}
-          language={project.language}
-          fontFamily={fontFamily}
-        />
-      );
-  }
-};
+import type { VideoProject } from "./types";
+import { getThemePalette } from "./utils/themeStyles";
 
 export const VideoComposition: React.FC<VideoProject> = (project) => {
   useProjectFonts();
@@ -144,17 +62,21 @@ export const VideoComposition: React.FC<VideoProject> = (project) => {
             key={scene.id || `scene-${index}`}
             from={from}
             durationInFrames={durationInFrames}
-            name={`${index + 1}-${scene.type}`}
+            name={`scene-${index + 1}`}
           >
-            <SceneContent
+            {/* Dynamic AI Code Runner with In-Browser Sucrase Compilation & ErrorBoundary */}
+            <DynamicSceneRunner
               scene={scene}
               palette={scenePalette}
               fontFamily={fontFamily}
               project={project}
+              isPortrait={isPortrait}
             />
 
+            {/* Mathematically Locked Synchronized Audio Track */}
             {audioSrc ? <Audio src={audioSrc} /> : null}
 
+            {/* Karaoke Word-Level Captions Overlay */}
             <KaraokeCaptionsOverlay
               scene={scene}
               palette={scenePalette}

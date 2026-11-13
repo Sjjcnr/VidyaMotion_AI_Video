@@ -10,6 +10,7 @@ import {
 } from "../remotion/types";
 import {
   buildFullVideoProject,
+  generateSceneCode,
   type GenerationPhase,
 } from "../services/apiClient";
 
@@ -278,6 +279,54 @@ export function useVideoProject() {
     }
   }, []);
 
+  /**
+   * Regenerate Remotion TSX code for a single scene with an optional user instruction.
+   */
+  const regenerateScene = useCallback(
+    async (sceneId: string, instruction?: string): Promise<boolean> => {
+      const sceneIndex = currentProject.scenes.findIndex((s) => s.id === sceneId);
+      if (sceneIndex === -1) return false;
+
+      const scene = currentProject.scenes[sceneIndex];
+      setStatusMessage(`Regenerating scene ${sceneIndex + 1} code...`);
+
+      try {
+        const result = await generateSceneCode({
+          topic: currentProject.topic,
+          sceneIndex,
+          totalScenes: currentProject.scenes.length,
+          heading: scene.heading,
+          subtext: scene.subtext,
+          visualBrief: scene.visualBrief || scene.heading,
+          narrationScript: scene.narrationScript,
+          language: currentProject.language,
+          theme: currentProject.theme,
+          aspectRatio: currentProject.aspectRatio,
+          durationInFrames: scene.durationInFrames,
+          durationInSeconds: scene.durationInSeconds || scene.durationInFrames / 30,
+          accentColor: scene.accentColor,
+          userInstruction: instruction,
+          previousCode: scene.code,
+        });
+
+        updateScene(sceneId, {
+          code: result.code,
+          modelUsed: result.modelUsed,
+          isCorrected: result.isCorrected,
+          isPlaceholder: false,
+        });
+
+        setStatusMessage(`Scene ${sceneIndex + 1} code regenerated via ${result.modelUsed}!`);
+        return true;
+      } catch (err) {
+        console.error("[useVideoProject] Failed to regenerate scene:", err);
+        setStatusMessage(`Failed to regenerate scene ${sceneIndex + 1}.`);
+        return false;
+      }
+    },
+    [currentProject, updateScene]
+  );
+
   return {
     currentProject,
     setCurrentProject,
@@ -292,6 +341,7 @@ export function useVideoProject() {
     updateSceneHeading,
     updateSceneIcon,
     updateScene,
+    regenerateScene,
     generateVideo,
     cancelGeneration,
     saveCurrentProject,

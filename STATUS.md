@@ -38,10 +38,10 @@
 
 ## Phase B1 - B3: AI Code Mode Architecture & Two-Stage Pipeline
 
-### Status: COMPLETED & VERIFIED (Commit: Phase B1-B3)
+### Status: COMPLETED & VERIFIED (Commit: `1745f0a`)
 
 ### 1. Architectural Decisions (B1)
-- **Compiler**: In-browser `sucrase` (`transforms: ["jsx", "typescript"]`, `jsxRuntime: "classic"`) transforms LLM-generated TSX into executable JavaScript in < 5ms without needing heavy Babel standalone or WebAssembly compilers.
+- **Compiler**: In-browser `sucrase` (`transforms: ["jsx", "typescript", "imports"]`, `jsxRuntime: "classic"`) transforms LLM-generated TSX into executable JavaScript in < 5ms without needing heavy Babel standalone or WebAssembly compilers.
 - **Sandboxing & Remotion Web-Renderer Compatibility**:
   - **Why NOT an iframe**: `@remotion/web-renderer` captures DOM nodes frame-by-frame directly to an HTML canvas context. An iframe isolates documents and triggers canvas tainting or blank exports.
   - **In-Process Sandbox**: Pre-execution AST/regex static analysis forbidding `window.location`, `document.cookie`, `localStorage`, `fetch`, `XMLHttpRequest`, `eval`, `process.env`. Scope injection shadows dangerous globals (`window = undefined`, `document = undefined`). Render tree is wrapped in a React `ErrorBoundary` with graceful placeholder card fallback.
@@ -80,7 +80,41 @@
 
 ---
 
-## Next Up: Phase B4 - B6 (Safety, DynamicSceneRunner, Error Boundary, Reliability & Schema Cleanup)
-- B4: Implement `DynamicSceneRunner.tsx` with in-browser `sucrase` compilation, scope injection, static AST security filter, and infinite loop guards.
-- B5: Reliability loop: ErrorBoundary fallback card, up to 2 self-correction attempts on compile/runtime failures, per-model code success metrics reporting.
-- B6: Wire `VideoComposition.tsx` to `DynamicSceneRunner` and remove template scene dependencies from the runtime composition.
+## Phase B4 - B6: DynamicSceneRunner, Safety, Reliability & Template Removal
+
+### Status: COMPLETED & VERIFIED (Commit: Phase B4-B6)
+
+### 1. Implementation Deliverables
+- **`src/remotion/components/DynamicSceneRunner.tsx`**:
+  - **In-Browser Runtime Compilation**: Compiles LLM-generated TSX via `sucrase` inside `useMemo` in < 5ms.
+  - **Injected Scope**: Injects React hooks, Remotion primitives (`useCurrentFrame`, `useVideoConfig`, `interpolate`, `spring`, `AbsoluteFill`, `Sequence`), Lucide icon library (`Lucide.*`), theme palette, accentColor, heading, subtext, narrationScript, and frame timing.
+  - **Global Shadowing**: Shadows `window`, `document`, `globalThis`, `fetch`, `localStorage`, `sessionStorage` to `undefined`.
+  - **Static Security & Loop Validator (`validateSceneCode`)**: Blocks `window.location`, `document.cookie`, `localStorage`, `sessionStorage`, `fetch`, `XMLHttpRequest`, `WebSocket`, `eval`, `process.env`, `while` loops, `do-while` loops, unbounded `for` loops, `setInterval`, `setTimeout`, and `requestAnimationFrame`.
+  - **`SceneErrorBoundary`**: React class error boundary wrapping dynamic components. On runtime exception, catches error without unmounting Remotion Player.
+  - **`PlaceholderSceneCard`**: Graceful visual card rendered on compile error, security rejection, or runtime exception. Shows scene heading, theme background, and visual brief description; audio and subtitles play uninterrupted.
+- **`src/remotion/VideoComposition.tsx`**:
+  - Removed template switch and static scene imports (`TitleHeroScene`, `SplitExplainerScene`, etc.).
+  - Composition exclusively renders `DynamicSceneRunner` for every scene.
+- **`src/components/SceneBreakdownTabs.tsx` & `src/App.tsx`**:
+  - Added "View generated code" tab with full TSX code view, character count, and copy functionality.
+  - Added per-scene "Regenerate" button with optional instruction input box ("make diagram bigger", etc.).
+  - Added scene badges for model (`scene.modelUsed`), correction status (`scene.isCorrected`), and fallback card indicator (`scene.isPlaceholder`).
+  - Added visual brief display for each scene card.
+  - Updated `PromptPanel.tsx` milestone step 2 to "2. Voice & Code".
+
+### 2. Verification Evidence
+- `npm run typecheck` (`tsc --noEmit`): PASSED (exit code 0, 0 errors).
+- `npm run build` (`tsc --noEmit && vite build`): PASSED (exit code 0, built in 3.38s).
+- **Automated Bad-Code & Safety Tests (`scratch/test-b4-b5.mts`)**:
+  - Test 1 (Syntax Error): Caught unclosed JSX tag cleanly (`Unexpected token`).
+  - Test 2 (Forbidden APIs): Successfully blocked `fetch()`, `window.location`, `localStorage`, `eval()`.
+  - Test 3 (Infinite Loop Guards): Successfully blocked `while(true)`, `do-while`, `setInterval()`.
+  - Test 4 (Clean Execution): Successfully compiled and executed valid TSX component in Node without errors.
+
+---
+
+## Next Up: Phase B7 - B9 & Acceptance Testing
+- B7: Offline Expo showcase topics regeneration in Code Mode (`src/data/showcasePresets.ts`). Verify offline playback with network off.
+- B8: Verification of UI tabs (View code, Regenerate button, Model badges).
+- B9: Optional visual self-check inspection.
+- Acceptance Tests: 5 topics x 3 languages (`en-IN`, `hi-IN`, `gu-IN`), Bad-code tests, Web-renderer MP4 export in 3 languages, 9:16 portrait export, Secret scan.
