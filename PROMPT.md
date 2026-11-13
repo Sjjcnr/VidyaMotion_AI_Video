@@ -27,14 +27,14 @@ You are an expert Principal Full-Stack Engineer and Remotion specialist. Your mi
 ---
 
 ### 1. Key Architectural Guarantees & Constraints
-1. **Zero Runtime Syntax Crashes:** Do NOT ask the LLM to write raw, arbitrary TSX code from scratch. Instead, build a library of bulletproof, pre-tested Remotion Scene Components. The LLM must generate a strictly-typed JSON Schema (validated by Zod). This JSON drives the parameterized scenes with 100% deterministic reliability.
+1. **AI Code Mode (SUPERSEDES Static Template Guarantee):** Rather than restricting visuals to a fixed set of static templates, VidyaMotion AI uses **AI Code Mode**, where Gemini dynamically writes self-contained Remotion TSX scene code tailored specifically to each topic (animated SVG diagrams, step flows, charts, chemical/math formulas). The client browser compiles the TSX code at runtime using `sucrase` and executes it within a secure, ErrorBoundary-protected runner inside `@remotion/player`. Reliability is guaranteed via pre-run static AST/regex scanning, up to 2 self-correction attempts, model fallback chaining, and a graceful placeholder card fallback ensuring the video never crashes or stops playback.
 2. **Instant Playback & In-Browser Export (Approach 2):** 
-   - The user MUST NOT wait 3 minutes for server-side FFmpeg rendering. The generated video must start playing in the browser within 5 to 8 seconds using `@remotion/player`.
+   - The user MUST NOT wait 3 minutes for server-side FFmpeg rendering. The generated video starts playing in the browser as scenes stream in using `@remotion/player`.
    - For downloads, implement **Approach 2: In-Browser Client-Side Video Export** using Remotion's client-side renderer (`@remotion/web-renderer`, WebCodecs-based; see Section 7.1). This completely eliminates server-side Chromium/FFmpeg compute, avoids all Vercel 10-second serverless timeouts, and generates downloadable video files directly on the client machine with zero server CPU cost (the exact output format is determined in Section 7.1).
 3. **Mathematically Locked Audio Sync:** Scene durations must NOT be arbitrarily hardcoded. Each scene's frame duration must be calculated directly from the duration of its synthesized audio track:
-   `durationInFrames = Math.ceil(audioDurationInSeconds * 30)` at 30 FPS.
+   `durationInFrames = Math.ceil(audioDurationInSeconds * 30)` at 30 FPS. Generated scene code is duration-agnostic and times animations relative to `durationInFrames`.
 4. **Defensive UI & Text Clamping:** All typography inside Remotion scenes must use flexible layouts (`line-clamp-2`, auto-wrapping, dynamic font scaling) so long titles or bullet points never clip outside the 1080p canvas.
-5. **Expo-Proof Offline Cache:** Include a pre-warmed offline showcase cache containing 4 complete, verified topic compositions (e.g., "Binary Search Trees", "Photosynthesis", "How Rocket Engines Work", "Ohm's Law in Gujarati") so the application can be demonstrated flawlessly even if the Tech Expo Wi-Fi drops.
+5. **Expo-Proof Offline Cache:** Include a pre-warmed offline showcase cache containing 4 complete, verified topic compositions (e.g., "Binary Search Trees", "Photosynthesis in Hindi", "How Rocket Engines Work", "Ohm's Law in Gujarati") generated in Code Mode so the application can be demonstrated flawlessly even if the Tech Expo Wi-Fi drops.
 
 ---
 
@@ -71,15 +71,17 @@ The entire project deploys to Vercel as a single repository without needing sepa
 ```text
 Topic2video/
 ├── api/                           # Vercel Serverless Functions (Backend)
-│   ├── generate-script.ts         # Gemini API structured script generation (model + key fallback)
+│   ├── generate-script.ts         # Stage 1: Gemini API structured script plan + visual briefs
+│   ├── generate-scene-code.ts     # Stage 2: Gemini API dynamic Remotion TSX code generator
 │   └── generate-speech.ts         # msedge-tts audio synthesis & word timestamp extraction
 │
 ├── src/                           # Vite SPA Frontend (Client-side)
-│   ├── remotion/                  # Compositions, scenes, and transitions
-│   │   ├── scenes/                # TitleHero, SplitExplainer, Metric, StepFlow, Summary
+│   ├── remotion/                  # Compositions, scenes, and dynamic code runner
+│   │   ├── components/            # DynamicSceneRunner, KaraokeCaptionsOverlay, SceneBackground
+│   │   ├── reference/templates/   # Static reference templates (few-shot exemplars)
 │   │   ├── Root.tsx               # Root Remotion Composition definition
-│   │   └── types.ts               # Shared Zod & TypeScript interfaces
-│   ├── components/                # UI Dashboard, @remotion/player, Controls
+│   │   └── types.ts               # Shared Zod & TypeScript interfaces (Code Mode schemas)
+│   ├── components/                # UI Dashboard, @remotion/player, Controls, Code Viewer
 │   ├── hooks/                     # useVideoExport, useVideoProject
 │   ├── App.tsx                    # Main Layout & Studio view
 │   └── main.tsx
@@ -136,36 +138,34 @@ export type VideoProject = z.infer<typeof VideoProjectSchema>;
 
 ---
 
-### 4. Remotion Scene Architecture & Animations
+### 4. AI Code Mode: Dynamic Scene Architecture & Design Guidelines
 
-Build the following modular scene components in `src/remotion/scenes/`:
+In VidyaMotion AI, Remotion scene components are **not** restricted to static hardcoded templates. Instead, the Gemini API dynamically writes full, self-contained Remotion TSX code for each scene based on the topic and visual brief (animated SVG diagrams, step flows, charts, chemical/math formulas).
 
-#### A. `<TitleHeroScene />`
-- **Visuals:** Ambient glowing radial background, particle floating effect, and an entrance animation for the title.
-- **Animation Mechanics:**
-  - `spring({ frame, fps: 30, config: { damping: 12, mass: 0.8 } })` for scale pop ($0.8 \rightarrow 1.0$).
-  - `interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" })` for smooth opacity fade-in.
-  - Staggered entrance for subtitle and "Topic Tag" badge.
+#### 4.1. Runtime Dynamic Scene Execution (`DynamicSceneRunner.tsx`)
+- **Compilation:** Uses in-browser `sucrase` (`{ transforms: ["jsx", "typescript"], jsxRuntime: "classic" }`) to transform LLM-written TSX into `React.createElement` code in under 5ms.
+- **Sandboxing & Scope Injection:**
+  - Evaluated in a controlled factory function:
+    `const factory = new Function("React", "Remotion", "Lucide", "tokens", "props", code);`
+  - Injected dependencies: React hooks, Remotion primitives (`useCurrentFrame`, `useVideoConfig`, `interpolate`, `spring`, `AbsoluteFill`, `Sequence`), Lucide icon library (`Lucide.*`), and theme tokens.
+  - Globals shadowed: `window = undefined`, `document = undefined`, `globalThis = undefined`, `fetch = undefined`, `eval = undefined`.
+  - Static AST/regex security validator blocks any attempt to use `fetch`, `localStorage`, `process`, or dynamic `import`.
+  - Infinite loop guard: system prompt forbids unbounded loops; static validator checks for `while(true)` and unbounded iteration.
+- **Error Containment & Fallbacks:**
+  - Wrapped in a React `ErrorBoundary`.
+  - On compile or runtime error: the pipeline triggers up to 2 self-correction attempts sent back to the model with the exact compiler/runtime error message.
+  - If corrections and fallback models fail, renders a graceful placeholder card (scene heading over theme background with voiceover and karaoke subtitles playing uninterrupted).
 
-#### B. `<SplitExplainerScene />`
-- **Visuals:** Split 50/50 layout.
-  - Left: An animated card with a floating icon, pulsing circular waves, and dynamic glow.
-  - Right: Clean list of 3 bullet points, staggered by 20 frames each:
-    `const bulletProgress = spring({ frame: frame - index * 20, fps: 30 })`.
+#### 4.2. Output Quality & Design Guide
+- **1080p Canvas & Safe Zones:** 1920x1080 (16:9 Landscape) or 1080x1920 (9:16 Portrait). Safe margins of 64px on sides and 160px from the bottom to prevent clipping by karaoke subtitles.
+- **Duration-Agnostic Timing:** Scenes receive `{ frame, fps, durationInFrames, themeTokens, captions }`. All entrance and exit transitions scale relative to `durationInFrames` so animations look natural whether the voiceover lasts 4 seconds or 12 seconds.
+- **Typography & Font Stacks:** Bundled local fonts (`Inter` for English, `Noto Sans Devanagari` for Hindi, `Noto Sans Gujarati` for Gujarati). Minimum font size 28px for subtext, 48px for headings.
+- **Topic-Specific Visuals:** System prompt requires rich, topic-specific visuals: animated SVG diagrams with labeled parts, process step flows with animated connectors, interactive charts, or formula cards.
+- **Reference Template Exemplars:** Original static scene components (`TitleHero`, `SplitExplainer`, `KeyMetric`, `StepFlow`, `SummaryTakeaway`) are archived in `src/remotion/reference/templates/` and their code patterns are supplied as few-shot training examples in the Stage 2 system prompt.
+- **Web-Renderer Compatibility:** Only features that cleanly rasterize to canvas in `@remotion/web-renderer` are allowed: pure inline `#hex`/`rgba()` colors, SVG elements, standard Flexbox/Grid, and `spring`/`interpolate` animation. No `conic-gradient`, no `backdrop-filter`, no CSS `@keyframes`, and no 4-argument box shadows.
 
-#### C. `<KeyMetricOrFactScene />`
-- **Visuals:** Large highlighted formula or statistical card in the center with a glowing conic border.
-- **Animation Mechanics:** Numbers animate upward using `interpolate(frame, [0, 30], [0, targetValue])`.
-
-#### D. `<StepByStepFlowScene />`
-- **Visuals:** 3 connected cards representing sequential phases (e.g. *Input $\rightarrow$ Process $\rightarrow$ Output*).
-- **Animation Mechanics:** Line connectors draw themselves using SVG `strokeDashoffset` interpolation.
-
-#### E. `<SummaryTakeawayScene />`
-- **Visuals:** Checklist layout. Completed checkmarks animate with a spring bounce.
-
-#### F. `<KaraokeCaptionsOverlay />`
-- Uses `@remotion/captions` to highlight the current active spoken word with a bright neon yellow background and rounded pill highlight.
+#### 4.3. `<KaraokeCaptionsOverlay />`
+- Preserves word-level timestamp synchronicity from Edge-TTS using `@remotion/captions`. Highlights the current active spoken word with a bright neon yellow background pill and solid background container.
 
 ---
 
@@ -310,7 +310,7 @@ Facts verified against Remotion's official documentation (Nov 2026):
 - [x] **Theme Alignment:** Grounded in *"Digital India & Smart Technologies"* — democratizing high-quality visual STEM education across India in vernacular languages.
 - [x] **Sub-10-Second Demo:** Uses `@remotion/player` for instant in-browser preview without FFmpeg lag.
 - [x] **Zero Server Timeout (Approach 2):** In-browser client-side export (`@remotion/web-renderer`) eliminates all server FFmpeg timeouts.
-- [x] **Zero Error Guarantee:** Scene components are pre-compiled React; AI only populates Zod-validated data props.
+- [x] **AI Code Mode Reliability (Supersedes Static Zero Error Guarantee):** Dynamic Remotion TSX scene code generated per topic, compiled in-browser via `sucrase`, with static safety verification, ErrorBoundary sandboxing, up to 2 self-correction retries, model fallback chain, and seamless placeholder fallback card ensuring zero video interruption.
 - [x] **Vite Native:** Sub-50ms HMR for spring animation development; zero Next.js SSR hydration quirks.
 - [x] **Pre-Cached Showcase:** 4 complete offline demo topics stored in `localStorage` / static assets in case of Wi-Fi issues.
 

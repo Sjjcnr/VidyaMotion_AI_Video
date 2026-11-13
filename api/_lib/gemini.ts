@@ -8,19 +8,210 @@ import {
 } from "@google/genai";
 import { z } from "zod";
 import {
+  GenerateSceneCodeRequestSchema,
+  GenerateSceneCodeResponseSchema,
   GenerateScriptRequestSchema,
   GenerateScriptResponseSchema,
-  LLMScriptPayloadSchema,
-  VideoProjectSchema,
+  LLMPlanPayloadSchema,
+  VideoProjectPlanSchema,
   type AspectRatio,
+  type GenerateSceneCodeRequest,
+  type GenerateSceneCodeResponse,
   type GenerateScriptRequest,
   type GenerateScriptResponse,
-  type LLMScriptPayload,
+  type LLMPlanPayload,
   type LanguageCode,
-  type Scene,
+  type PlanScene,
   type ThemeId,
-  type VideoProject,
+  type VideoProjectPlan,
 } from "../../src/remotion/types.ts";
+
+export const THEME_COLOR_TOKENS: Record<
+  ThemeId,
+  {
+    background: string;
+    cardBg: string;
+    cardBorder: string;
+    textPrimary: string;
+    textSecondary: string;
+    accentDefault: string;
+    glow: string;
+  }
+> = {
+  cyber_dark: {
+    background: "#0A0E17",
+    cardBg: "rgba(16, 24, 39, 0.9)",
+    cardBorder: "rgba(30, 58, 138, 0.4)",
+    textPrimary: "#F8FAFC",
+    textSecondary: "#94A3B8",
+    accentDefault: "#06B6D4",
+    glow: "rgba(6, 182, 212, 0.35)",
+  },
+  clean_modern: {
+    background: "#F8FAFC",
+    cardBg: "rgba(255, 255, 255, 0.95)",
+    cardBorder: "rgba(226, 232, 240, 0.9)",
+    textPrimary: "#0F172A",
+    textSecondary: "#475569",
+    accentDefault: "#2563EB",
+    glow: "rgba(37, 99, 235, 0.25)",
+  },
+  sunset_amber: {
+    background: "#180C08",
+    cardBg: "rgba(36, 18, 12, 0.9)",
+    cardBorder: "rgba(180, 83, 9, 0.4)",
+    textPrimary: "#FFFBEB",
+    textSecondary: "#FDE68A",
+    accentDefault: "#F59E0B",
+    glow: "rgba(245, 158, 11, 0.35)",
+  },
+  emerald_nature: {
+    background: "#061A12",
+    cardBg: "rgba(12, 38, 27, 0.9)",
+    cardBorder: "rgba(16, 185, 129, 0.35)",
+    textPrimary: "#ECFDF5",
+    textSecondary: "#A7F3D0",
+    accentDefault: "#10B981",
+    glow: "rgba(16, 185, 129, 0.35)",
+  },
+};
+
+export const STAGE2_SYSTEM_PROMPT = `You are the Principal Creative Technologist and Remotion Code Architect for "VidyaMotion AI".
+Your mission is to write clean, high-performance, self-contained Remotion React TSX code for a single educational video scene.
+
+### ENVIRONMENT & SCOPE:
+The code runs in an isolated browser runner inside @remotion/player and is exported directly via @remotion/web-renderer.
+Available variables in scope:
+- React (standard React hooks: useState, useMemo)
+- Remotion (Remotion hooks and primitives: useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill, Sequence)
+- Lucide (all Lucide React icons as Lucide.IconName, e.g. <Lucide.Sparkles />, <Lucide.Atom />, <Lucide.Cpu />, <Lucide.Zap />, <Lucide.Sun />, <Lucide.Activity />, <Lucide.Leaf />, <Lucide.CheckCircle />)
+- palette: theme colors object { background, cardBg, cardBorder, textPrimary, textSecondary, accentDefault, glow }
+- accentColor: hex string (e.g. "#06B6D4")
+- isPortrait: boolean (true when canvas is 1080x1920 portrait; false when 1920x1080 landscape)
+- frame: current frame number (number)
+- fps: composition frames per second (30)
+- durationInFrames: total frame duration of this scene (number, locked to voiceover length)
+- heading: scene heading string
+- subtext: scene subtext string (optional)
+- narrationScript: voiceover narration string for context
+
+### MANDATORY DESIGN & CODE RULES:
+1. Return ONLY pure TSX code defining and exporting a default React component:
+   export default function GeneratedScene() { ... }
+   DO NOT include import statements (React and Remotion are already injected).
+   DO NOT wrap with markdown fences (\`\`\`tsx). Return raw executable TSX only.
+2. DURATION-AGNOSTIC ANIMATION:
+   Animations MUST scale relative to 'durationInFrames' or use 'frame' with 'Remotion.spring({ frame, fps })' and 'Remotion.interpolate()'.
+   NEVER assume a fixed 150 frames. The voiceover might be 90 frames or 360 frames.
+3. CANVAS & SAFE MARGINS:
+   Canvas is 1920x1080 (16:9) or 1080x1920 (9:16 portrait).
+   Keep a minimum 64px padding on sides and 160px clearance from the bottom to prevent overlapping with the bottom karaoke subtitles.
+4. RICH TOPIC-SPECIFIC VISUALS (CRITICAL):
+   Do NOT make a boring text slide!
+   Every scene MUST include an animated visual representation of the concept:
+   - An animated SVG diagram (e.g. chemical reactions, circuit schematics, anatomical structures, orbital mechanics, binary tree nodes).
+   - Dynamic geometric cards with animated SVG connector lines.
+   - Interactive data counters using interpolate(frame, [0, 30], [0, target]).
+   - Floating illustrative icons, animated progress bars, or pulse waves.
+5. STRICT WEB-RENDERER & CANVAS EXPORT COMPATIBILITY:
+   The video will be exported to MP4 via @remotion/web-renderer which rasterizes the DOM to an HTML canvas:
+   - Use pure inline styles with standard '#hex' and 'rgba()' color values.
+   - NEVER use Tailwind v4 'oklch()' or CSS variables.
+   - NEVER use 'conic-gradient'. Use SVG <linearGradient> or standard linear-gradient.
+   - NEVER use 'backdrop-filter: blur(...)'. Use solid 'rgba(...)' backgrounds.
+   - NEVER use CSS @keyframes or external CSS classes. All animations must be driven by 'frame'.
+   - Box-shadows must have at most 3 arguments: '0 4px 12px rgba(0,0,0,0.5)'.
+   - NEVER use window, document, fetch, XMLHttpRequest, localStorage, setTimeout, setInterval, or eval.`;
+
+export const FEW_SHOT_CODE_EXAMPLES = `// Example 1: Topic-specific Animated SVG Diagram (e.g. Photovoltaic Cell)
+function SolarCellDiagram({ frame, fps, durationInFrames, accentColor, palette, isPortrait }) {
+  const intro = Remotion.spring({ frame, fps, config: { damping: 14 } });
+  const photonProgress = (frame % 45) / 45;
+  const electronFlow = (frame % 60) / 60;
+  
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: isPortrait ? "column" : "row",
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: isPortrait ? "40px 24px" : "60px 80px",
+      boxSizing: "border-box"
+    }}>
+      <div style={{ flex: 1, maxWidth: isPortrait ? "100%" : "45%" }}>
+        <div style={{
+          display: "inline-block",
+          padding: "6px 14px",
+          borderRadius: "999px",
+          backgroundColor: accentColor + "22",
+          border: "1px solid " + accentColor + "66",
+          color: accentColor,
+          fontSize: "18px",
+          fontWeight: 700,
+          marginBottom: "16px"
+        }}>
+          PHOTOVOLTAIC PROCESS
+        </div>
+        <h1 style={{
+          fontSize: isPortrait ? "42px" : "56px",
+          fontWeight: 800,
+          color: palette.textPrimary,
+          margin: "0 0 16px 0",
+          lineHeight: 1.15
+        }}>
+          Converting Light into Current
+        </h1>
+        <p style={{
+          fontSize: isPortrait ? "22px" : "26px",
+          color: palette.textSecondary,
+          margin: 0,
+          lineHeight: 1.5
+        }}>
+          Photons excite electrons across the silicon P-N junction, creating an electric current.
+        </p>
+      </div>
+      
+      <div style={{
+        flex: 1,
+        width: "100%",
+        maxWidth: isPortrait ? "100%" : "48%",
+        height: isPortrait ? "360px" : "480px",
+        backgroundColor: palette.cardBg,
+        border: "1px solid " + palette.cardBorder,
+        borderRadius: "24px",
+        padding: "24px",
+        boxSizing: "border-box",
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transform: "scale(" + intro + ")"
+      }}>
+        <svg viewBox="0 0 500 400" style={{ width: "100%", height: "100%" }}>
+          <defs>
+            <linearGradient id="nType" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#0284C7" stopOpacity="0.8" />
+            </linearGradient>
+            <linearGradient id="pType" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FB7185" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#E11D48" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+          <rect x="50" y="100" width="400" height="80" rx="8" fill="url(#nType)" stroke="#38BDF8" strokeWidth="2" />
+          <text x="70" y="145" fill="#FFFFFF" fontSize="18" fontWeight="700">N-Type Silicon (Free Electrons)</text>
+          <line x1="50" y1="180" x2="450" y2="180" stroke="#FDE047" strokeWidth="3" strokeDasharray="8 6" />
+          <rect x="50" y="180" width="400" height="80" rx="8" fill="url(#pType)" stroke="#FB7185" strokeWidth="2" />
+          <text x="70" y="225" fill="#FFFFFF" fontSize="18" fontWeight="700">P-Type Silicon (Holes)</text>
+          <circle cx="150" cy={70 + photonProgress * 60} r="6" fill="#FDE047" />
+          <circle cx={100 + electronFlow * 300} cy="140" r="8" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2" />
+        </svg>
+      </div>
+    </div>
+  );
+}`;
 
 export const DEFAULT_GEMINI_MODELS = [
   "gemini-3.8-flash",
@@ -32,10 +223,9 @@ export const DEFAULT_GEMINI_MODELS = [
 ] as const;
 
 const OVERALL_DEADLINE_MS = 80_000;
-const PER_CALL_TIMEOUT_MS = 16_000;
+const PER_CALL_TIMEOUT_MS = 18_000;
 const MIN_CALL_BUDGET_MS = 350;
 const VIDEO_FPS = 30;
-const DEFAULT_SCENE_DURATION_FRAMES = 150;
 
 const HEX_COLOR_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -48,105 +238,35 @@ const THEME_DEFAULT_ACCENTS: Record<ThemeId, string> = {
 
 const LANGUAGE_DIRECTIONS: Record<LanguageCode, string> = {
   "en-IN":
-    "Use clear, engaging Indian English (en-IN) suitable for students and tech-literate viewers across India. All headings, subtext, bulletPoints, highlightWord, and narrationScript MUST be in natural English.",
+    "Use clear, engaging Indian English (en-IN) suitable for students and viewers across India. All headings, subtext, visualBrief, and narrationScript MUST be in natural English.",
   "hi-IN":
-    "Use natural, conversational Hindi written strictly in Devanagari script (हिन्दी देवनागरी लिपि, e.g. 'प्रकाश संश्लेषण कैसे काम करता है'). All headings, subtext, bulletPoints, highlightWord, and narrationScript MUST be in Devanagari Hindi (only scientific units/symbols like ATP, CO2, V = I × R may stay in standard notation; keep JSON keys, type, iconName, and accentColor in ASCII).",
+    "Use natural, conversational Hindi written strictly in Devanagari script (हिन्दी देवनागरी लिपि, e.g. 'प्रकाश संश्लेषण कैसे काम करता है'). All headings, subtext, visualBrief, and narrationScript MUST be in Devanagari Hindi (only scientific units/symbols like ATP, CO2, V = I × R may stay in standard notation; keep JSON keys, and accentColor in ASCII).",
   "gu-IN":
-    "Use natural, conversational Gujarati written strictly in Gujarati script (ગુજરાતી લિપિ, e.g. 'ઓહ્મનો નિયમ કેવી રીતે કામ કરે છે'). All headings, subtext, bulletPoints, highlightWord, and narrationScript MUST be in Gujarati script (only scientific units/symbols like V = I × R, CO2 may stay in standard notation; keep JSON keys, type, iconName, and accentColor in ASCII).",
+    "Use natural, conversational Gujarati written strictly in Gujarati script (ગુજરાતી લિપિ, e.g. 'ઓહ્મનો નિયમ કેવી રીતે કામ કરે છે'). All headings, subtext, visualBrief, and narrationScript MUST be in Gujarati script (only scientific units/symbols like V = I × R, CO2 may stay in standard notation; keep JSON keys, and accentColor in ASCII).",
   "en-US":
-    "Use clear, engaging American English (en-US). All headings, subtext, bulletPoints, highlightWord, and narrationScript MUST be in natural English.",
+    "Use clear, engaging American English (en-US). All headings, subtext, visualBrief, and narrationScript MUST be in natural English.",
 };
 
-const CURATED_LUCIDE_ICONS = [
-  "Sparkles",
-  "Atom",
-  "Binary",
-  "BookOpen",
-  "Bot",
-  "Brain",
-  "Calculator",
-  "CheckCircle2",
-  "Clock",
-  "Cloud",
-  "Code2",
-  "Compass",
-  "Cpu",
-  "Database",
-  "Dna",
-  "Eye",
-  "Flame",
-  "FlaskConical",
-  "Gauge",
-  "Globe",
-  "GraduationCap",
-  "HardDrive",
-  "HeartPulse",
-  "Infinity",
-  "Key",
-  "Layers",
-  "Leaf",
-  "Lightbulb",
-  "Link",
-  "Lock",
-  "Magnet",
-  "Map",
-  "Microscope",
-  "Network",
-  "Orbit",
-  "Percent",
-  "PieChart",
-  "Plug",
-  "Radar",
-  "Recycle",
-  "RefreshCw",
-  "Rocket",
-  "Scale",
-  "Search",
-  "Server",
-  "Settings",
-  "ShieldCheck",
-  "Sigma",
-  "Smartphone",
-  "Sprout",
-  "Star",
-  "Sun",
-  "Target",
-  "Terminal",
-  "Thermometer",
-  "TrendingUp",
-  "Users",
-  "Waves",
-  "Wifi",
-  "Workflow",
-  "Wrench",
-  "Zap",
-].join(", ");
+const LLM_PLAN_JSON_SCHEMA = z.toJSONSchema(LLMPlanPayloadSchema);
+const LLM_PLAN_JSON_SCHEMA_TEXT = JSON.stringify(LLM_PLAN_JSON_SCHEMA, null, 2);
 
-const LLM_SCRIPT_JSON_SCHEMA = z.toJSONSchema(LLMScriptPayloadSchema);
-const LLM_SCRIPT_JSON_SCHEMA_TEXT = JSON.stringify(LLM_SCRIPT_JSON_SCHEMA, null, 2);
-
-const SYSTEM_PROMPT = `You are the Script Director for "VidyaMotion AI", an educational animated explainer video studio.
+const STAGE1_SYSTEM_PROMPT = `You are the Script & Visual Director for "VidyaMotion AI", an educational animated video studio.
 Given a topic, target language, visual theme, and aspect ratio, break down the concept into 3 to 6 engaging, bite-sized visual scenes (4 or 5 scenes is ideal).
 
 STRICT SCENE ARCHITECTURE RULES:
 1. Return ONLY a JSON object matching the schema: { "scenes": [ ... ] } with 3 to 6 scenes.
-2. Scene 1 (first scene) MUST use type "TITLE_HERO" with a compelling hook heading, short subtext, and optional highlightWord topic tag.
-3. Middle scenes MUST choose the best educational templates from:
-   - "SPLIT_EXPLAINER": concept visual + 3 concise bulletPoints (max 4, <= 100 chars each).
-   - "KEY_METRIC_OR_FACT": centered formula, statistic, or key definition in highlightWord (<= 30 chars, e.g. "V = I × R", "99.9%", "O(log n)") + crisp heading + explanatory subtext.
-   - "STEP_BY_STEP_FLOW": 3 sequential steps in bulletPoints formatted as "Phase: short action" (e.g. "Input: Photons strike silicon", "Process: Electrons flow as DC", "Output: Inverter powers grid").
-4. Final scene (last scene) MUST use type "SUMMARY_TAKEAWAY" with 3 concise recap items in bulletPoints and an optional highlightWord badge.
-5. HARD CHARACTER LIMITS (never exceed these):
-   - heading: <= 80 characters (concise, high-impact title)
-   - subtext: <= 160 characters (optional)
-   - bulletPoints: array of 0 to 4 strings, each <= 100 characters
-   - highlightWord: <= 30 characters (optional)
-   - iconName: MUST be a PascalCase Lucide icon identifier from this curated list: ${CURATED_LUCIDE_ICONS}
-   - accentColor: MUST be a valid 6-digit hex color like "#06B6D4", "#38BDF8", "#8B5CF6", "#10B981", "#F59E0B", or "#2563EB".
-6. NARRATION RULES:
-   - Every scene MUST have a rich, conversational, human-sounding "narrationScript" (2 to 3 clear sentences, ~25-45 words) tailored for text-to-speech voiceover.
+2. Scene 1 (first scene) MUST be an opening hook introducing the core question or big idea.
+3. Middle scenes MUST explain key mechanisms, steps, or principles.
+4. Final scene (last scene) MUST provide a memorable summary or takeaway.
+5. MANDATORY FIELDS PER SCENE:
+   - heading: <= 120 characters (high-impact title)
+   - subtext: <= 250 characters (concise explanation)
+   - visualBrief: MANDATORY (concise, highly specific visual design brief describing the topic-specific diagram, flowchart, schematic, chemical equation, or mathematical animation to be coded in Remotion TSX)
+   - narrationScript: rich, conversational, human-sounding (2 to 3 clear sentences, ~25-45 words) tailored for text-to-speech voiceover
+   - accentColor: valid 6-digit hex color like "#06B6D4", "#38BDF8", "#8B5CF6", "#10B981", "#F59E0B", or "#2563EB"
+6. NARRATION & SCRIPT RULES:
    - Make narrationScript TTS-friendly: NO markdown symbols (*, #, \`\`), NO URLs, NO emojis, NO bullet symbols.
-   - Strictly match the requested language and script.`;
+   - Strictly match the requested language and script (Devanagari for Hindi, Gujarati script for Gujarati).`;
 
 export interface GenerateScriptOptions {
   apiKeys?: readonly string[];
@@ -187,10 +307,6 @@ type ProviderErrorClassification =
     }
   | { kind: "model_unavailable"; status?: number; reason: string };
 
-/**
- * Reads GEMINI_API_KEY followed by numerically sorted GEMINI_API_KEY_BACKUP_<N> variables,
- * ignoring empty/missing entries and preserving deduplicated priority order.
- */
 export function getConfiguredGeminiKeys(
   env: Record<string, string | undefined> = process.env
 ): string[] {
@@ -228,10 +344,6 @@ export function getConfiguredGeminiKeys(
   return keys;
 }
 
-/**
- * Parses comma-separated GEMINI_MODELS preserving exact user priority order,
- * falling back to DEFAULT_GEMINI_MODELS when missing or empty.
- */
 export function getConfiguredGeminiModels(
   env: Record<string, string | undefined> = process.env
 ): string[] {
@@ -266,7 +378,7 @@ function getThinkingLevelForModel(model: string): ThinkingLevel {
   return ThinkingLevel.MINIMAL;
 }
 
-function buildUserPrompt(
+function buildStage1UserPrompt(
   input: GenerateScriptRequest,
   options?: {
     includeContract?: boolean;
@@ -278,15 +390,15 @@ function buildUserPrompt(
   const accentHint = THEME_DEFAULT_ACCENTS[input.theme];
   const aspectHint =
     input.aspectRatio === "9:16"
-      ? "9:16 vertical portrait (Shorts/Reels) — keep headings and bullet points extra punchy."
+      ? "9:16 vertical portrait (Shorts/Reels) — keep headings extra punchy."
       : "16:9 widescreen landscape (YouTube/Classroom).";
 
   const sections: string[] = [];
 
   if (options?.includeContract) {
     sections.push(
-      SYSTEM_PROMPT,
-      `OUTPUT JSON SCHEMA CONTRACT:\n${LLM_SCRIPT_JSON_SCHEMA_TEXT}`,
+      STAGE1_SYSTEM_PROMPT,
+      `OUTPUT JSON SCHEMA CONTRACT:\n${LLM_PLAN_JSON_SCHEMA_TEXT}`,
       `CRITICAL OUTPUT FORMAT: Respond with ONLY a valid raw JSON object matching the schema above. Do NOT include markdown code fences, commentary, or extra keys.`
     );
   }
@@ -298,7 +410,7 @@ function buildUserPrompt(
       `LANGUAGE & SCRIPT REQUIREMENT: ${languageRule}`,
       `VISUAL THEME: ${input.theme} (suggested primary accentColor: ${accentHint})`,
       `ASPECT RATIO: ${aspectHint}`,
-      `Generate 3 to 6 scenes starting with TITLE_HERO and ending with SUMMARY_TAKEAWAY.`,
+      `Generate 3 to 6 educational scenes with detailed visualBrief entries describing topic-specific diagrams or animations.`,
     ].join("\n")
   );
 
@@ -319,7 +431,7 @@ function buildUserPrompt(
   return sections.join("\n\n");
 }
 
-function buildModelConfig(
+function buildModelConfigForStage1(
   model: string,
   overrides: ConfigOverrides = {}
 ): { config: GenerateContentConfig; includeContractInPrompt: boolean } {
@@ -339,12 +451,12 @@ function buildModelConfig(
   }
 
   if (!omitSystem) {
-    config.systemInstruction = SYSTEM_PROMPT;
+    config.systemInstruction = STAGE1_SYSTEM_PROMPT;
   }
 
   if (!omitJson) {
     config.responseMimeType = "application/json";
-    config.responseJsonSchema = LLM_SCRIPT_JSON_SCHEMA;
+    config.responseJsonSchema = LLM_PLAN_JSON_SCHEMA;
   }
 
   return {
@@ -584,21 +696,21 @@ function sliceOutermostJson(raw: string): string {
 
 function stripNullOptionalFields(raw: unknown): unknown {
   if (Array.isArray(raw)) {
-    return { scenes: raw.map(normalizeRawScene) };
+    return { scenes: raw.map(normalizeRawPlanScene) };
   }
   if (typeof raw === "object" && raw !== null && "scenes" in raw) {
     const record = raw as Record<string, unknown>;
     if (Array.isArray(record.scenes)) {
       return {
         ...record,
-        scenes: record.scenes.map(normalizeRawScene),
+        scenes: record.scenes.map(normalizeRawPlanScene),
       };
     }
   }
   return raw;
 }
 
-function normalizeRawScene(rawScene: unknown): unknown {
+function normalizeRawPlanScene(rawScene: unknown): unknown {
   if (typeof rawScene !== "object" || rawScene === null) {
     return rawScene;
   }
@@ -610,27 +722,17 @@ function normalizeRawScene(rawScene: unknown): unknown {
       continue;
     }
     if (
-      (key === "subtext" || key === "highlightWord" || key === "id") &&
+      (key === "subtext" || key === "id") &&
       typeof value === "string" &&
       value.trim().length === 0
     ) {
       continue;
     }
     if (
-      (key === "iconName" || key === "accentColor") &&
+      (key === "accentColor" || key === "visualBrief") &&
       typeof value === "string" &&
       value.trim().length === 0
     ) {
-      continue;
-    }
-    if (key === "bulletPoints" && Array.isArray(value)) {
-      const filtered = value.filter(
-        (item): item is string =>
-          typeof item === "string" && item.trim().length > 0
-      );
-      if (filtered.length > 0) {
-        cleaned[key] = filtered;
-      }
       continue;
     }
     cleaned[key] = value;
@@ -655,7 +757,7 @@ function formatValidationError(error: unknown): string {
   return "- Invalid JSON response";
 }
 
-function parseAndValidateScriptPayload(rawText: string): LLMScriptPayload {
+function parseAndValidatePlanPayload(rawText: string): LLMPlanPayload {
   const unfenced = stripMarkdownFences(rawText);
   const jsonSlice = sliceOutermostJson(unfenced);
   if (!jsonSlice) {
@@ -663,22 +765,22 @@ function parseAndValidateScriptPayload(rawText: string): LLMScriptPayload {
   }
   const parsedJson = JSON.parse(jsonSlice) as unknown;
   const normalized = stripNullOptionalFields(parsedJson);
-  return LLMScriptPayloadSchema.parse(normalized);
+  return LLMPlanPayloadSchema.parse(normalized);
 }
 
-function hydrateVideoProject(
-  payload: LLMScriptPayload,
+function hydrateVideoProjectPlan(
+  payload: LLMPlanPayload,
   input: {
     topic: string;
     language: LanguageCode;
     theme: ThemeId;
     aspectRatio: AspectRatio;
   }
-): VideoProject {
+): VideoProjectPlan {
   const usedIds = new Set<string>();
   const defaultAccent = THEME_DEFAULT_ACCENTS[input.theme];
 
-  const scenes: Scene[] = payload.scenes.map((rawScene, index) => {
+  const scenes: PlanScene[] = payload.scenes.map((rawScene, index) => {
     const candidateId = rawScene.id?.trim();
     const baseId =
       candidateId && !usedIds.has(candidateId)
@@ -691,32 +793,17 @@ function hydrateVideoProject(
       ? accentTrimmed
       : defaultAccent;
 
-    const bulletPoints = rawScene.bulletPoints
-      ?.map((item) => item.trim())
-      .filter((item) => item.length > 0);
-
     return {
       id: baseId,
-      type: rawScene.type,
       heading: rawScene.heading.trim(),
       ...(rawScene.subtext?.trim() ? { subtext: rawScene.subtext.trim() } : {}),
-      ...(bulletPoints && bulletPoints.length > 0 ? { bulletPoints } : {}),
-      ...(rawScene.highlightWord?.trim()
-        ? { highlightWord: rawScene.highlightWord.trim() }
-        : {}),
-      iconName: rawScene.iconName.trim() || "Sparkles",
+      visualBrief: rawScene.visualBrief.trim(),
       narrationScript: rawScene.narrationScript.trim(),
       accentColor,
-      durationInFrames: DEFAULT_SCENE_DURATION_FRAMES,
     };
   });
 
-  const totalDurationInFrames = scenes.reduce(
-    (sum, scene) => sum + scene.durationInFrames,
-    0
-  );
-
-  return VideoProjectSchema.parse({
+  return VideoProjectPlanSchema.parse({
     id: `proj_${randomUUID()}`,
     topic: input.topic,
     language: input.language,
@@ -724,11 +811,10 @@ function hydrateVideoProject(
     aspectRatio: input.aspectRatio,
     fps: VIDEO_FPS,
     scenes,
-    totalDurationInFrames,
   });
 }
 
-async function invokeModelOnce(params: {
+async function invokeModelForStage1Once(params: {
   apiKey: string;
   model: string;
   input: GenerateScriptRequest;
@@ -743,12 +829,12 @@ async function invokeModelOnce(params: {
     httpOptions: { timeout: params.callTimeoutMs },
   });
 
-  const { config, includeContractInPrompt } = buildModelConfig(
+  const { config, includeContractInPrompt } = buildModelConfigForStage1(
     params.model,
     params.overrides
   );
 
-  const userPrompt = buildUserPrompt(params.input, {
+  const userPrompt = buildStage1UserPrompt(params.input, {
     includeContract: includeContractInPrompt,
     validationFeedback: params.validationFeedback,
     previousResponseSnippet: params.previousResponseSnippet,
@@ -762,13 +848,7 @@ async function invokeModelOnce(params: {
 
   const text = extractResponseText(response);
   if (!text.trim()) {
-    const blockReason = response.promptFeedback?.blockReason;
-    const finishReason = response.candidates?.[0]?.finishReason;
-    throw new Error(
-      `Empty response from ${params.model}${
-        blockReason ? ` (blockReason=${blockReason})` : ""
-      }${finishReason ? ` (finishReason=${finishReason})` : ""}`
-    );
+    throw new Error(`Empty response from ${params.model}`);
   }
 
   return text;
@@ -815,8 +895,7 @@ function buildAdaptedOverrides(
 }
 
 /**
- * Generates a Zod-validated VideoProject script using an ordered model + API key
- * fallback chain on Gemini v1beta within an 80s total deadline and 16s per-call cap.
+ * Stage 1: Generates a structured VideoProjectPlan (scenes, narrationScript, and visualBrief).
  */
 export async function generateScriptWithFallback(
   rawInput: GenerateScriptRequest,
@@ -884,7 +963,7 @@ export async function generateScriptWithFallback(
       let rawText: string | undefined;
 
       try {
-        rawText = await invokeModelOnce({
+        rawText = await invokeModelForStage1Once({
           apiKey,
           model,
           input,
@@ -897,17 +976,11 @@ export async function generateScriptWithFallback(
         if (classified.kind === "dead_key") {
           deadKeys.add(keyIndex);
           attemptsSummary.push(`${model}/${keyLabel}:${classified.reason}`);
-          console.warn(
-            `[gemini] Marking ${keyLabel} dead (${classified.reason}) on ${model}; trying next key.`
-          );
           continue;
         }
 
         if (classified.kind === "rate_limit") {
           attemptsSummary.push(`${model}/${keyLabel}:429`);
-          console.warn(
-            `[gemini] Quota limit (429) for ${model} on ${keyLabel}; rotating to next key.`
-          );
           continue;
         }
 
@@ -923,12 +996,9 @@ export async function generateScriptWithFallback(
             activeOverrides,
             classified
           );
-          console.warn(
-            `[gemini] Adapting 400 param configuration for ${model} (${classified.reason}) and retrying once.`
-          );
 
           try {
-            rawText = await invokeModelOnce({
+            rawText = await invokeModelForStage1Once({
               apiKey,
               model,
               input,
@@ -951,16 +1021,10 @@ export async function generateScriptWithFallback(
             attemptsSummary.push(
               `${model}/${keyLabel}:${retryClassified.reason}`
             );
-            console.warn(
-              `[gemini] Adapted 400 retry failed on ${model} (${retryClassified.reason}); advancing to next model.`
-            );
             break;
           }
         } else {
           attemptsSummary.push(`${model}/${keyLabel}:${classified.reason}`);
-          console.warn(
-            `[gemini] Model ${model} unavailable on ${keyLabel} (${classified.reason}); advancing immediately to next model.`
-          );
           break;
         }
       }
@@ -969,10 +1033,9 @@ export async function generateScriptWithFallback(
         continue;
       }
 
-      // Parse & Zod-validate, with one self-correction retry on the same model/key.
-      let payload: LLMScriptPayload | undefined;
+      let payload: LLMPlanPayload | undefined;
       try {
-        payload = parseAndValidateScriptPayload(rawText);
+        payload = parseAndValidatePlanPayload(rawText);
       } catch (parseError) {
         const feedback = formatValidationError(parseError);
         const retryRemainingMs = deadlineAt - Date.now();
@@ -981,13 +1044,9 @@ export async function generateScriptWithFallback(
           break;
         }
 
-        console.warn(
-          `[gemini] Output validation failed on ${model} (${keyLabel}); retrying once with Zod error feedback.`
-        );
-
         let retryText: string;
         try {
-          retryText = await invokeModelOnce({
+          retryText = await invokeModelForStage1Once({
             apiKey,
             model,
             input,
@@ -1012,22 +1071,14 @@ export async function generateScriptWithFallback(
           attemptsSummary.push(
             `${model}/${keyLabel}:${retryClassified.reason}`
           );
-          console.warn(
-            `[gemini] Self-correction call failed on ${model} (${retryClassified.reason}); advancing to next model.`
-          );
           break;
         }
 
         try {
-          payload = parseAndValidateScriptPayload(retryText);
+          payload = parseAndValidatePlanPayload(retryText);
         } catch (secondParseError) {
           attemptsSummary.push(
             `${model}/${keyLabel}:repeated_validation_failure`
-          );
-          console.warn(
-            `[gemini] Repeated JSON/Zod validation failure on ${model}: ${formatValidationError(
-              secondParseError
-            )}; advancing immediately to next model.`
           );
           break;
         }
@@ -1037,12 +1088,8 @@ export async function generateScriptWithFallback(
         continue;
       }
 
-      const project = hydrateVideoProject(payload, input);
+      const project = hydrateVideoProjectPlan(payload, input);
       const fallbackUsed = modelIndex > 0 || keyIndex > 0;
-
-      console.info(
-        `[gemini] Script generated successfully with model=${model} (${keyLabel}, fallbackUsed=${fallbackUsed}, scenes=${project.scenes.length}).`
-      );
 
       return GenerateScriptResponseSchema.parse({
         project,
@@ -1052,14 +1099,265 @@ export async function generateScriptWithFallback(
     }
   }
 
-  console.error(
-    `[gemini] All providers failed after ${attemptsSummary.length} transition(s): ${attemptsSummary.join(
-      " | "
-    )}`
-  );
-
   throw new ScriptGenerationError(
-    "All Gemini AI script generation models and keys are currently unavailable or exceeded quota. Please try again shortly or load an offline Expo showcase demo.",
+    "All Gemini AI script generation models and keys are currently unavailable or exceeded quota.",
     attemptsSummary
   );
 }
+
+// =============================================================================
+// STAGE 2: DYNAMIC REMOTION SCENE TSX CODE GENERATION
+// =============================================================================
+
+function sanitizeGeneratedSceneCode(raw: string): string {
+  let cleaned = raw.trim();
+  cleaned = cleaned.replace(/^```(?:tsx|jsx|typescript|javascript)?\s*/i, "");
+  cleaned = cleaned.replace(/\s*```$/i, "");
+  cleaned = cleaned.trim();
+  // Strip import statements if LLM included any
+  cleaned = cleaned.replace(/import\s+[\s\S]*?from\s+['"][^'"]+['"];?/g, "");
+  return cleaned.trim();
+}
+
+function validateGeneratedSceneCode(code: string): void {
+  if (code.length < 30) {
+    throw new Error("Generated scene code is too short or empty.");
+  }
+  const forbiddenPatterns = [
+    /\bwindow\.location\b/,
+    /\bdocument\.cookie\b/,
+    /\blocalStorage\b/,
+    /\bsessionStorage\b/,
+    /\bfetch\s*\(/,
+    /\bXMLHttpRequest\b/,
+    /\beval\s*\(/,
+    /\bprocess\.env\b/,
+  ];
+  for (const pattern of forbiddenPatterns) {
+    if (pattern.test(code)) {
+      throw new Error(`Generated scene code contains forbidden API: ${pattern.toString()}`);
+    }
+  }
+}
+
+function buildSceneCodeUserPrompt(input: GenerateSceneCodeRequest): string {
+  const themeTokens = THEME_COLOR_TOKENS[input.theme] ?? THEME_COLOR_TOKENS.cyber_dark;
+  const isPortrait = input.aspectRatio === "9:16";
+
+  let prompt = `Write a self-contained Remotion TSX component for this video scene:
+TOPIC: ${input.topic}
+SCENE ${input.sceneIndex + 1} of ${input.totalScenes}: "${input.heading}"
+${input.subtext ? `SUBTEXT: "${input.subtext}"` : ""}
+VISUAL BRIEF (CRITICAL): ${input.visualBrief}
+NARRATION VOICEOVER: "${input.narrationScript}"
+ASPECT RATIO: ${input.aspectRatio} (isPortrait: ${isPortrait})
+THEME: ${input.theme} (palette: ${JSON.stringify(themeTokens)})
+ACCENT COLOR: ${input.accentColor}
+DURATION: ${input.durationInFrames} frames (~${input.durationInSeconds} seconds at 30 fps)
+`;
+
+  if (input.userInstruction) {
+    prompt += `\nUSER SPECIFIC REGENERATION INSTRUCTION:\n${input.userInstruction}\n`;
+  }
+
+  if (input.previousError) {
+    prompt += `\nSELF-CORRECTION REQUIRED:
+The previous attempt failed with this error:
+${input.previousError}
+
+Previous code snippet:
+${input.previousCode || "None"}
+
+Fix the syntax and runtime error completely. Ensure all JSX tags are closed and all variables are defined.`;
+  }
+
+  prompt += `\nOUTPUT REQUIREMENTS:
+- Return ONLY valid executable TSX code defining and exporting a default React component:
+  export default function GeneratedScene() { ... }
+- Scope already contains: React, Remotion (useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill, Sequence), Lucide, palette, accentColor, isPortrait, frame, fps, durationInFrames, heading, subtext, narrationScript.
+- DO NOT use markdown fences or import statements.
+- Strict export safety: pure inline '#hex'/'rgba()' styling, SVG graphics, no conic-gradient, no backdrop-filter, no external CSS.`;
+
+  return prompt;
+}
+
+async function invokeModelForCodeOnce(params: {
+  apiKey: string;
+  model: string;
+  input: GenerateSceneCodeRequest;
+  callTimeoutMs: number;
+  overrides?: ConfigOverrides;
+}): Promise<string> {
+  const ai = new GoogleGenAI({
+    apiKey: params.apiKey,
+    apiVersion: "v1beta",
+    httpOptions: { timeout: params.callTimeoutMs },
+  });
+
+  const thinkingLevel =
+    params.overrides?.thinkingLevelOverride ??
+    (params.overrides?.omitThinking ? undefined : getThinkingLevelForModel(params.model));
+
+  const config: GenerateContentConfig = {
+    temperature: 0.3,
+    systemInstruction: params.overrides?.omitSystemInstruction
+      ? undefined
+      : `${STAGE2_SYSTEM_PROMPT}\n\nFEW-SHOT INSPIRATION EXAMPLES:\n${FEW_SHOT_CODE_EXAMPLES}`,
+    ...(thinkingLevel !== undefined
+      ? { thinkingConfig: { thinkingLevel } }
+      : {}),
+  };
+
+  const userPrompt = buildSceneCodeUserPrompt(params.input);
+
+  const response = await ai.models.generateContent({
+    model: params.model,
+    contents: userPrompt,
+    config,
+  });
+
+  const text = extractResponseText(response);
+  if (!text.trim()) {
+    throw new Error(`Empty code response from ${params.model}`);
+  }
+  return text;
+}
+
+/**
+ * Stage 2: Generates a self-contained Remotion TSX component for one scene with model fallback.
+ */
+export async function generateSceneCodeWithFallback(
+  rawInput: GenerateSceneCodeRequest,
+  options: GenerateScriptOptions = {}
+): Promise<GenerateSceneCodeResponse> {
+  const input = GenerateSceneCodeRequestSchema.parse(rawInput);
+
+  const keys = (
+    options.apiKeys ? [...options.apiKeys] : getConfiguredGeminiKeys()
+  )
+    .map((k) => k.trim())
+    .filter((k) => k.length > 0);
+
+  const models = (
+    options.models ? [...options.models] : getConfiguredGeminiModels()
+  )
+    .map((m) => m.trim())
+    .filter((m) => m.length > 0);
+
+  if (keys.length === 0) {
+    throw new ScriptGenerationError(
+      "No Gemini API keys are configured on the server."
+    );
+  }
+
+  if (models.length === 0) {
+    throw new ScriptGenerationError(
+      "No Gemini models are configured on the server."
+    );
+  }
+
+  const overallDeadlineMs = options.overallDeadlineMs ?? OVERALL_DEADLINE_MS;
+  const perCallTimeoutMs = options.perCallTimeoutMs ?? PER_CALL_TIMEOUT_MS;
+  const deadlineAt = Date.now() + overallDeadlineMs;
+
+  const deadKeys = new Set<number>();
+  const attemptsSummary: string[] = [];
+
+  for (let modelIndex = 0; modelIndex < models.length; modelIndex++) {
+    const model = models[modelIndex];
+
+    if (deadKeys.size >= keys.length) {
+      break;
+    }
+
+    if (deadlineAt - Date.now() <= MIN_CALL_BUDGET_MS) {
+      attemptsSummary.push(`deadline_exhausted_before:${model}`);
+      break;
+    }
+
+    for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+      if (deadKeys.has(keyIndex)) {
+        continue;
+      }
+
+      const remainingMs = deadlineAt - Date.now();
+      if (remainingMs <= MIN_CALL_BUDGET_MS) {
+        attemptsSummary.push(`deadline_exhausted:${model}`);
+        break;
+      }
+
+      const apiKey = keys[keyIndex];
+      const keyLabel = `key#${keyIndex + 1}`;
+      let activeOverrides: ConfigOverrides = {};
+      let rawText: string | undefined;
+
+      try {
+        rawText = await invokeModelForCodeOnce({
+          apiKey,
+          model,
+          input,
+          callTimeoutMs: Math.min(perCallTimeoutMs, remainingMs),
+          overrides: activeOverrides,
+        });
+      } catch (error) {
+        const classified = classifyProviderError(error, keys);
+        if (classified.kind === "dead_key") {
+          deadKeys.add(keyIndex);
+          attemptsSummary.push(`${model}/${keyLabel}:${classified.reason}`);
+          continue;
+        }
+        if (classified.kind === "rate_limit") {
+          attemptsSummary.push(`${model}/${keyLabel}:429`);
+          continue;
+        }
+        if (classified.kind === "unsupported_param") {
+          activeOverrides = buildAdaptedOverrides(model, activeOverrides, classified);
+          try {
+            rawText = await invokeModelForCodeOnce({
+              apiKey,
+              model,
+              input,
+              callTimeoutMs: Math.min(perCallTimeoutMs, deadlineAt - Date.now()),
+              overrides: activeOverrides,
+            });
+          } catch (retryError) {
+            attemptsSummary.push(`${model}/${keyLabel}:400_retry_fail`);
+            break;
+          }
+        } else {
+          attemptsSummary.push(`${model}/${keyLabel}:${classified.reason}`);
+          break;
+        }
+      }
+
+      if (rawText === undefined) {
+        continue;
+      }
+
+      const cleanedCode = sanitizeGeneratedSceneCode(rawText);
+      try {
+        validateGeneratedSceneCode(cleanedCode);
+      } catch (valErr) {
+        attemptsSummary.push(`${model}/${keyLabel}:code_validation_failed`);
+        continue;
+      }
+
+      const fallbackUsed = modelIndex > 0 || keyIndex > 0;
+      return GenerateSceneCodeResponseSchema.parse({
+        code: cleanedCode,
+        modelUsed: model,
+        fallbackUsed,
+        isCorrected: Boolean(input.previousError),
+        attemptsSummary,
+      });
+    }
+  }
+
+  throw new ScriptGenerationError(
+    "All Gemini AI models failed while generating scene code.",
+    attemptsSummary
+  );
+}
+
+export const generateScriptPlanWithFallback = generateScriptWithFallback;
+

@@ -4,8 +4,8 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 /**
- * Lightweight Vite dev server plugin that mounts /api/generate-script and
- * /api/generate-speech as local Web Standard endpoints in development mode.
+ * Lightweight Vite dev server plugin that mounts /api/generate-script,
+ * /api/generate-speech, and /api/generate-scene-code as local Web Standard endpoints in development mode.
  * Eliminates 404s when running "npm run dev" without requiring Vercel CLI.
  */
 function apiDevMiddleware(): Plugin {
@@ -18,7 +18,9 @@ function apiDevMiddleware(): Plugin {
 
         if (
           req.method === "POST" &&
-          (pathname === "/api/generate-script" || pathname === "/api/generate-speech")
+          (pathname === "/api/generate-script" ||
+            pathname === "/api/generate-speech" ||
+            pathname === "/api/generate-scene-code")
         ) {
           try {
             const chunks: Uint8Array[] = [];
@@ -59,11 +61,19 @@ function apiDevMiddleware(): Plugin {
                 "./api/generate-script.ts"
               );
               webResponse = await handleGenerateScript(webRequest);
-            } else {
+            } else if (pathname === "/api/generate-speech") {
               const { POST: handleGenerateSpeech } = await import(
                 "./api/generate-speech.ts"
               );
               webResponse = await handleGenerateSpeech(webRequest);
+            } else if (pathname === "/api/generate-scene-code") {
+              const { POST: handleGenerateSceneCode } = await import(
+                "./api/generate-scene-code.ts"
+              );
+              webResponse = await handleGenerateSceneCode(webRequest);
+            } else {
+              next();
+              return;
             }
 
             res.statusCode = webResponse.status;

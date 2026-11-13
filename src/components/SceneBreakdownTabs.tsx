@@ -217,8 +217,8 @@ export const SceneBreakdownTabs: React.FC<SceneBreakdownTabsProps> = ({
           <div className="grid grid-cols-1 gap-3">
             {sceneTimeline.map(({ scene, index, fromFrame, durationInFrames, durationInSeconds }) => {
               const IconComponent = resolveLucideIcon(scene.iconName);
-              const badge = SCENE_TYPE_BADGES[scene.type] || {
-                label: scene.type,
+              const badge = (scene.type ? SCENE_TYPE_BADGES[scene.type] : undefined) || {
+                label: scene.type || "AI Scene",
                 color: "bg-slate-800 text-slate-300 border-slate-700",
               };
               const isEditing = editingSceneId === scene.id;

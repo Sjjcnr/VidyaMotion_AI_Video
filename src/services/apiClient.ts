@@ -1,5 +1,8 @@
 import {
   type AspectRatio,
+  type GenerateSceneCodeRequest,
+  type GenerateSceneCodeResponse,
+  GenerateSceneCodeResponseSchema,
   type GenerateScriptRequest,
   type GenerateScriptResponse,
   GenerateScriptResponseSchema,
@@ -7,6 +10,7 @@ import {
   type GenerateSpeechResponse,
   GenerateSpeechResponseSchema,
   type LanguageCode,
+  type Scene,
   type ThemeId,
   type VideoProject,
 } from "../remotion/types";
@@ -57,7 +61,7 @@ export class ApiClientError extends Error {
 }
 
 /**
- * Calls POST /api/generate-script to create a structured VideoProject schema using Gemini.
+ * Calls POST /api/generate-script to create a structured VideoProjectPlan schema using Gemini.
  */
 export async function generateScript(
   request: GenerateScriptRequest,
@@ -205,9 +209,83 @@ export async function synthesizeSpeech(
 }
 
 /**
- * Orchestrates full project generation:
- * Step 1: Script generation via Gemini API.
- * Step 2: Edge-TTS synthesis for each scene sequentially.
+ * Calls POST /api/generate-scene-code to dynamically generate Remotion TSX code for a single scene.
+ */
+export async function generateSceneCode(
+  request: GenerateSceneCodeRequest,
+  signal?: AbortSignal
+): Promise<GenerateSceneCodeResponse> {
+  let response: Response;
+  try {
+    response = await fetch("/api/generate-scene-code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      signal,
+    });
+  } catch (error) {
+    if (signal?.aborted) {
+      throw new ApiClientError("Scene code generation was cancelled.", "ABORTED");
+    }
+    const message =
+      error instanceof Error ? error.message : "Network error during scene code generation.";
+    throw new ApiClientError(
+      `Could not reach scene code generation service: ${message}.`,
+      "NETWORK_ERROR"
+    );
+  }
+
+  if (!response.ok) {
+    let errorMessage = `Scene code generation failed with HTTP status ${response.status}.`;
+    let errorCode = "SCENE_CODE_GENERATION_FAILED";
+
+    try {
+      const errBody = (await response.json()) as {
+        error?: string;
+        code?: string;
+        attempts?: readonly string[];
+      };
+      if (errBody?.error) {
+        errorMessage = errBody.error;
+      }
+      if (errBody?.code) {
+        errorCode = errBody.code;
+      }
+      if (Array.isArray(errBody?.attempts) && errBody.attempts.length > 0) {
+        const attemptsSummary = errBody.attempts.join(" | ");
+        errorMessage = `${errorMessage} Models attempted: [${attemptsSummary}].`;
+      }
+    } catch {
+      // Non-JSON response
+    }
+
+    throw new ApiClientError(
+      `${errorMessage} (Code: ${errorCode}).`,
+      errorCode,
+      response.status
+    );
+  }
+
+  const rawJson: unknown = await response.json();
+  const parsed = GenerateSceneCodeResponseSchema.safeParse(rawJson);
+  if (!parsed.success) {
+    console.error("[apiClient] Invalid response format from /api/generate-scene-code:", parsed.error);
+    throw new ApiClientError(
+      "Received invalid scene code payload from the server.",
+      "INVALID_CODE_RESPONSE",
+      response.status
+    );
+  }
+
+  return parsed.data;
+}
+
+/**
+ * Orchestrates full project generation in AI Code Mode:
+ * Step 1: Script generation via Gemini API (Stage 1 plan with visualBrief).
+ * Step 2: Edge-TTS synthesis and Stage 2 Remotion scene code generation in parallel per scene.
  * Step 3: Mathematical Time-Lock application (audioUrl, durationInSeconds, durationInFrames, captions).
  * Step 4: Total duration recalculation and timeline assembly.
  */
@@ -240,11 +318,11 @@ export async function buildFullVideoProject(
     onProgress = onProgressArg;
   }
 
-  // Step 1: Script Generation
+  // Step 1: Script Generation Plan
   onProgress?.({
     phase: "generating-script",
     percent: 10,
-    message: "Consulting Gemini AI to compose educational scenes...",
+    message: "Consulting Gemini AI to compose educational scenes & visual briefs...",
   });
 
   const scriptResponse = await generateScript(
@@ -257,19 +335,26 @@ export async function buildFullVideoProject(
     signal
   );
 
-  const project: VideoProject = scriptResponse.project;
-  const scenes = project.scenes;
+  const plan = scriptResponse.project;
+  const scenes: Scene[] = plan.scenes.map((s) => ({
+    ...s,
+    durationInFrames: 150,
+    captions: [],
+    code: "",
+    isCorrected: false,
+    isPlaceholder: false,
+  }));
   const totalScenes = scenes.length;
 
   onProgress?.({
     phase: "synthesizing-audio",
-    percent: 30,
-    message: `Generated ${totalScenes} scenes. Starting neural voiceover synthesis...`,
+    percent: 25,
+    message: `Generated plan for ${totalScenes} scenes. Coding Remotion visuals and synthesizing audio in parallel...`,
     currentScene: 0,
     totalScenes,
   });
 
-  // Step 2 & 3: Sequential Edge-TTS voiceover synthesis & Mathematical Time-Lock
+  // Step 2 & 3: Parallel Edge-TTS Voiceover and Dynamic Remotion Scene Code Generation
   for (let i = 0; i < scenes.length; i++) {
     if (signal?.aborted) {
       throw new ApiClientError("Project generation was cancelled.", "ABORTED");
@@ -277,29 +362,69 @@ export async function buildFullVideoProject(
 
     const scene = scenes[i];
     const sceneNum = i + 1;
-    const progressPercent = 30 + Math.round(((i + 0.2) / totalScenes) * 55);
+    const progressPercent = 25 + Math.round(((i + 0.5) / totalScenes) * 65);
 
     onProgress?.({
       phase: "synthesizing-audio",
       percent: progressPercent,
-      message: `Synthesizing neural voice for Scene ${sceneNum} of ${totalScenes}: "${scene.heading}"...`,
+      message: `Scene ${sceneNum}/${totalScenes}: Writing Remotion scene code and synthesizing neural voice...`,
       currentScene: sceneNum,
       totalScenes,
     });
 
-    const speech = await synthesizeSpeech(
+    // 1. Synthesize Speech
+    const ttsPromise = synthesizeSpeech(
       {
         text: scene.narrationScript,
-        language: project.language,
+        language: plan.language,
       },
       signal
     );
+
+    // 2. Generate Dynamic Remotion Code in parallel
+    const codePromise = generateSceneCode(
+      {
+        topic,
+        sceneIndex: i,
+        totalScenes,
+        heading: scene.heading,
+        subtext: scene.subtext,
+        visualBrief: scene.visualBrief || scene.heading,
+        narrationScript: scene.narrationScript,
+        language: plan.language,
+        theme: plan.theme,
+        aspectRatio: plan.aspectRatio,
+        durationInFrames: 150,
+        durationInSeconds: 5,
+        accentColor: scene.accentColor,
+      },
+      signal
+    ).catch((err) => {
+      console.warn(
+        `[apiClient] Code generation failed for scene ${sceneNum}, falling back to placeholder card:`,
+        err
+      );
+      return {
+        code: "",
+        modelUsed: "placeholder",
+        fallbackUsed: true,
+        isCorrected: false,
+      };
+    });
+
+    const [speech, codeResult] = await Promise.all([ttsPromise, codePromise]);
 
     // Apply Mathematical Time-Lock
     scene.audioUrl = speech.audioDataUrl;
     scene.durationInSeconds = speech.durationInSeconds;
     scene.durationInFrames = speech.durationInFrames;
     scene.captions = speech.captions;
+
+    // Attach generated code and metadata
+    scene.code = codeResult.code;
+    scene.modelUsed = codeResult.modelUsed;
+    scene.isCorrected = codeResult.isCorrected;
+    scene.isPlaceholder = !codeResult.code || codeResult.modelUsed === "placeholder";
   }
 
   // Step 4: Recompute total duration & assemble timeline
@@ -311,15 +436,21 @@ export async function buildFullVideoProject(
     totalScenes,
   });
 
-  project.totalDurationInFrames = project.scenes.reduce(
+  const totalDurationInFrames = scenes.reduce(
     (sum, s) => sum + s.durationInFrames,
     0
   );
 
+  const project: VideoProject = {
+    ...plan,
+    scenes,
+    totalDurationInFrames,
+  };
+
   onProgress?.({
     phase: "ready",
     percent: 100,
-    message: `Video ready! ${project.scenes.length} scenes, ${Math.round(
+    message: `Video ready! ${project.scenes.length} scenes in AI Code Mode, ${Math.round(
       project.totalDurationInFrames / 30
     )}s runtime.`,
     currentScene: totalScenes,
