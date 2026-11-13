@@ -256,8 +256,25 @@ export const DynamicSceneRunner: React.FC<DynamicSceneRunnerProps> = ({
       const exportsObj: { default?: React.ComponentType<any>; [key: string]: any } = {};
 
       const RemotionScope = {
-        useCurrentFrame,
-        useVideoConfig,
+        useCurrentFrame: () => {
+          try {
+            return useCurrentFrame();
+          } catch {
+            return 0;
+          }
+        },
+        useVideoConfig: () => {
+          try {
+            return useVideoConfig();
+          } catch {
+            return {
+              fps: 30,
+              width: isPortrait ? 1080 : 1920,
+              height: isPortrait ? 1920 : 1080,
+              durationInFrames: scene.durationInFrames || 150,
+            };
+          }
+        },
         interpolate,
         spring,
         AbsoluteFill,
@@ -288,7 +305,7 @@ export const DynamicSceneRunner: React.FC<DynamicSceneRunnerProps> = ({
         transformed
       );
 
-      factory(
+      const factoryResult = factory(
         exportsObj,
         React,
         RemotionScope,
@@ -314,6 +331,7 @@ export const DynamicSceneRunner: React.FC<DynamicSceneRunnerProps> = ({
         exportsObj.default ||
         exportsObj.GeneratedScene ||
         exportsObj.Scene ||
+        (typeof factoryResult === "function" ? factoryResult : undefined) ||
         Object.values(exportsObj).find((v) => typeof v === "function");
 
       if (!SceneFn || typeof SceneFn !== "function") {

@@ -104,11 +104,11 @@ export const FEW_SHOT_SCENE_EXCERPTS = [
   {
     title: "Animated SVG Process Diagram with Connectors",
     description: "Multi-step flow with animated connector lines and step cards.",
-    code: `function Scene(props) {
+    code: `export default function GeneratedScene(props) {
   const { frame, fps, durationInFrames, width, height, isPortrait } = props;
   const { AbsoluteFill, spring, interpolate } = Remotion;
   const { Zap, ArrowRight, Check } = Lucide;
-  const tokens = props.tokens;
+  const tokens = props.tokens ?? props.palette;
 
   const steps = [
     { num: "01", title: "Capture", desc: "Photons hit semiconductor wafer" },
@@ -132,11 +132,11 @@ export const FEW_SHOT_SCENE_EXCERPTS = [
     >
       <div style={{ textAlign: "center", marginBottom: 24 }}>
         <h2 style={{ fontSize: isPortrait ? 48 : 56, fontWeight: 800, color: tokens.textPrimary, margin: 0 }}>
-          {props.scene.heading}
+          {props.heading ?? props.scene?.heading}
         </h2>
-        {props.scene.subtext && (
+        {(props.subtext ?? props.scene?.subtext) && (
           <p style={{ fontSize: isPortrait ? 24 : 26, color: tokens.textSecondary, margin: "8px 0 0 0" }}>
-            {props.scene.subtext}
+            {props.subtext ?? props.scene?.subtext}
           </p>
         )}
       </div>
@@ -210,17 +210,16 @@ export const FEW_SHOT_SCENE_EXCERPTS = [
       </div>
     </AbsoluteFill>
   );
-}
-return Scene;`,
+}`,
   },
   {
     title: "Animated SVG Metric Card with Rotating Gradient Border",
     description: "Numeric stat highlight with animated SVG border and count-up.",
-    code: `function Scene(props) {
+    code: `export default function GeneratedScene(props) {
   const { frame, fps, isPortrait } = props;
   const { AbsoluteFill, spring, interpolate } = Remotion;
   const { Zap, Activity } = Lucide;
-  const tokens = props.tokens;
+  const tokens = props.tokens ?? props.palette;
 
   const cardW = isPortrait ? 920 : 1280;
   const cardH = isPortrait ? 800 : 540;
@@ -292,32 +291,31 @@ return Scene;`,
         </svg>
 
         <h2 style={{ fontSize: isPortrait ? 40 : 44, fontWeight: 700, color: tokens.textSecondary, margin: "0 0 20px 0" }}>
-          {props.scene.heading}
+          {props.heading ?? props.scene?.heading}
         </h2>
 
         <div style={{ fontSize: isPortrait ? 96 : 110, fontWeight: 800, color: tokens.accent, lineHeight: 1.1 }}>
           {statVal.toFixed(1)}%
         </div>
 
-        {props.scene.subtext && (
+        {(props.subtext ?? props.scene?.subtext) && (
           <p style={{ fontSize: isPortrait ? 26 : 28, color: tokens.textPrimary, margin: "24px 0 0 0", maxWidth: cardW - 120 }}>
-            {props.scene.subtext}
+            {props.subtext ?? props.scene?.subtext}
           </p>
         )}
       </div>
     </AbsoluteFill>
   );
-}
-return Scene;`,
+}`,
   },
   {
     title: "Split Visual Diagram with Concentric Rings",
     description: "50/50 split layout with pulsating animated rings and floating emblem.",
-    code: `function Scene(props) {
+    code: `export default function GeneratedScene(props) {
   const { frame, fps, isPortrait } = props;
   const { AbsoluteFill, spring, interpolate } = Remotion;
   const { Cpu, Check } = Lucide;
-  const tokens = props.tokens;
+  const tokens = props.tokens ?? props.palette;
 
   const floatY = Math.sin((frame / 30) * Math.PI) * 8;
   const pulseScale = interpolate((frame % 60) / 60, [0, 1], [0.8, 1.3]);
@@ -367,18 +365,17 @@ return Scene;`,
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 18 }}>
         <h2 style={{ fontSize: isPortrait ? 48 : 56, fontWeight: 800, color: tokens.textPrimary, margin: 0 }}>
-          {props.scene.heading}
+          {props.heading ?? props.scene?.heading}
         </h2>
-        {props.scene.subtext && (
+        {(props.subtext ?? props.scene?.subtext) && (
           <p style={{ fontSize: isPortrait ? 24 : 26, color: tokens.textSecondary, margin: 0 }}>
-            {props.scene.subtext}
+            {props.subtext ?? props.scene?.subtext}
           </p>
         )}
       </div>
     </AbsoluteFill>
   );
-}
-return Scene;`,
+}`,
   },
 ];
 
@@ -427,10 +424,10 @@ Injected scope:
    - props.language: language code ('en-IN', 'hi-IN', 'gu-IN', 'en-US')
    - props.fontFamily: localized font stack string
 
-### COMPONENT RETURN CONTRACT
-You MUST return the component function at the end of the code snippet:
+### COMPONENT EXPORT CONTRACT
+You MUST export the component as the default export of the code snippet:
 \`\`\`tsx
-function Scene(props) {
+export default function GeneratedScene(props) {
   // your implementation
   return (
     <Remotion.AbsoluteFill style={{ ... }}>
@@ -438,7 +435,6 @@ function Scene(props) {
     </Remotion.AbsoluteFill>
   );
 }
-return Scene;
 \`\`\`
 
 ### STRICT REMOTION WEB-RENDERER & CHROMIUM PARITY RULES
