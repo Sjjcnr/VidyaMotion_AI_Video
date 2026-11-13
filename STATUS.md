@@ -1,5 +1,36 @@
 # VidyaMotion AI - Project Status & Roadmap
 
+## Phase C: Sleek UI Overhaul, Anti-PPT Code Mode, & 9:16 Portrait Canvas Fix
+
+### Status: COMPLETED & VERIFIED (Commit: `49902f8`)
+
+### 1. Requirements & User Directives Addressed
+- **Eliminate All "Tech Expo", "Parul University", and "Bharat @ 2047" Branding**:
+  - Completely purged all exhibition event strings across `Header.tsx`, `App.tsx`, `VideoPreviewPanel.tsx`, `PromptPanel.tsx`, `apiClient.ts`, `useVideoProject.ts`, and `README.md`.
+  - Replaced with clean, professional product studio branding: "VidyaMotion AI Studio", "Featured Demos", "Dynamic Remotion Code Engine".
+- **Professional, Sleek, and Minimalist Frontend Redesign**:
+  - Replaced loud cyberpunk neon cyan glow accents (`#020617`, `border-cyan-500/30`, cyan badge rings) with a sleek, Linear/Vercel-inspired dark slate aesthetic (`#090D16`, `bg-slate-900/60`, `border-slate-800`, subtle indigo accents).
+  - Switched default studio theme from `cyber_dark` to `clean_modern`.
+- **Mandatory Anti-PPT & "Generate Long Code" Prompt Injection**:
+  - Injected strict directives into `STAGE1_SYSTEM_PROMPT`, `STAGE2_SYSTEM_PROMPT`, and `src/services/apiClient.ts` on every generate call:
+    - Minimum 200-450+ lines of dense Remotion TSX code per scene.
+    - Strict Zero-PPT policy: Strictly forbids PowerPoint-style bullet point cards, 3-bullet takeaway cards, and static text slide decks. The voiceover delivers narration; the visual canvas must show purely programmatic animated SVG technical diagrams, mathematical curves, or process simulations.
+  - Added an expandable "Code Directives & Custom Instructions" section in `PromptPanel.tsx` with active directive feedback.
+- **Fix 9:16 Portrait Aspect Ratio Bug**:
+  - Root cause resolved: SVGs previously had fixed `height: 360px` with 4:3 landscape viewBox, leaving 1100px+ of dead empty vertical space in a 1080x1920 portrait canvas.
+  - Sizing updated: In portrait, visual containers now expand to `maxHeight: 1050px, flex: 1` with vertical viewBoxes (`0 0 600 750` / `0 0 800 1000`), vertically distributing header (0-280px), tall central technical diagram (280-1450px), metric callouts (1450-1650px), and bottom subtitles (1650-1920px).
+  - Preview panel enlarged to `maxHeight: 640px, width: 360px` for optimal portrait video review.
+  - Overhauled all 16 scenes in `src/data/showcasePresets.ts` to remove bullet points and properly expand vertically.
+
+### 2. Verification Evidence
+- `npm run typecheck`: Passed with 0 errors.
+- `npm run build`: Passed with 0 errors (built in 3.99s).
+- Secret Scan: Verified 0 keys in `dist/assets/*.js`.
+- Vite Dev Server (`npm run dev`): Daemon running on `http://localhost:5173/` (HTTP 200 OK).
+- API Middleware: Verified `/api/generate-script` and `/api/generate-scene-code` return HTTP 400 validation on empty payload (mounted and functional, not 404).
+
+---
+
 ## Phase A: Fix Script-Generation 404 and Make Local Testing Work
 
 ### Status: COMPLETED & VERIFIED (Commit: `e19ab3f`)
