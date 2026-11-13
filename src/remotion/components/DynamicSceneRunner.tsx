@@ -378,6 +378,11 @@ export const DynamicSceneRunner: React.FC<DynamicSceneRunnerProps> = ({
           overflow: "hidden",
         }}
       >
+        <style>{`
+          svg text, svg tspan {
+            font-family: ${fontFamily}, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          }
+        `}</style>
         <SceneBackground palette={palette} seedPrefix={scene.id} />
         <ExecutableComponent
           frame={frame}

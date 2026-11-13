@@ -53,6 +53,11 @@ export const VideoComposition: React.FC<VideoProject> = (project) => {
         overflow: "hidden",
       }}
     >
+      <style>{`
+        svg text, svg tspan {
+          font-family: ${fontFamily}, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+      `}</style>
       {timeline.map(({ scene, from, durationInFrames }, index) => {
         const scenePalette = getThemePalette(themeId, scene.accentColor);
         const audioSrc = scene.audioUrl?.trim();

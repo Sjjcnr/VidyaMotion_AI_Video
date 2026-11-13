@@ -128,7 +128,23 @@ Available variables in scope:
    - NEVER use 'backdrop-filter: blur(...)'. Use solid 'rgba(...)' backgrounds.
    - NEVER use CSS @keyframes or external CSS classes. All animations must be driven by 'frame'.
    - Box-shadows must have at most 3 arguments: '0 4px 12px rgba(0,0,0,0.5)'.
-   - NEVER use window, document, fetch, XMLHttpRequest, localStorage, setTimeout, setInterval, or eval.`;
+   - NEVER use window, document, fetch, XMLHttpRequest, localStorage, setTimeout, setInterval, or eval.
+
+7. ZERO TEXT OVERLAPS & COLLISIONS:
+   - In any SVG or HTML layout, every text label and callout MUST have separate, non-overlapping coordinates.
+   - Maintain at least 32px vertical clearance between stacked labels. Never render multiple text elements over the same Y position.
+
+8. MANDATORY SAFE BOTTOM CLEARANCE FOR KARAOKE SUBTITLES:
+   - The bottom of the screen contains the live karaoke subtitle overlay!
+   - Landscape (16:9 1920x1080): Container padding bottom MUST be at least 220px. NO diagram or text element may extend below y = 860px.
+   - Portrait (9:16 1080x1920): Container padding bottom MUST be at least 340px. NO diagram or text element may extend below y = 1560px.
+
+9. HIGH CONTRAST BADGES & LABELS (WCAG AAA):
+   - NEVER use cyan, green, or light pastel text on translucent gray or muddy backgrounds (e.g. rgba(0,0,0,0.4) over light cards).
+   - Use deep solid dark containers ('#090D16' or '#0F172A') with crisp '#FFFFFF' or bright contrasting text, or clean high-contrast borders.
+
+10. MANDATORY SANS-SERIF FONT:
+   - Explicitly declare fontFamily: "Inter, system-ui, -apple-system, sans-serif" on the root container and all <text> elements so diagrams never fall back to Times New Roman / Serif.`;
 
 export const FEW_SHOT_CODE_EXAMPLES = `// Example: Topic-specific Animated SVG Visual (Photovoltaic Cell & Electron Flow)
 export default function GeneratedScene() {
@@ -1246,7 +1262,11 @@ Fix the syntax and runtime error completely. Ensure all JSX tags are closed and 
   export default function GeneratedScene() { ... }
 - Scope already contains: React, Remotion (useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill, Sequence), Lucide, palette, accentColor, isPortrait, frame, fps, durationInFrames, heading, subtext, narrationScript.
 - DO NOT use markdown fences or import statements.
-- Strict export safety: pure inline '#hex'/'rgba()' styling, SVG graphics, no conic-gradient, no backdrop-filter, no external CSS.`;
+- Strict export safety: pure inline '#hex'/'rgba()' styling, SVG graphics, no conic-gradient, no backdrop-filter, no external CSS.
+- ZERO TEXT OVERLAPS: Ensure every text label has distinct Y coordinates (minimum 32px vertical separation).
+- SUBTITLE CLEARANCE: Keep the bottom ${isPortrait ? "340px" : "220px"} clear of diagram elements to prevent collision with karaoke captions.
+- HIGH CONTRAST BADGES: Use solid deep dark backgrounds ('#090D16' or '#0F172A') for pill badges with crisp '#FFFFFF' or vivid text (never use pastel text on translucent gray).
+- SANS-SERIF FONT: Explicitly declare fontFamily="Inter, sans-serif" on the root and on SVG <text> elements.`;
 
   return prompt;
 }

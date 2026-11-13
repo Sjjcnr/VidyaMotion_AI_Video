@@ -502,9 +502,14 @@ Exported MP4 videos must match preview perfectly. Violating ANY rule will cause 
 10. NO BROWSER GLOBALS: Do NOT access window, document, localStorage, fetch, or process.
 
 ### CANVAS SAFE ZONES & CAPTION CLEARANCE
-- Landscape (16:9 1920x1080): padding: 72px 96px 200px 96px. Bottom margin MUST be at least 190px to prevent overlap with Karaoke Captions.
-- Portrait (9:16 1080x1920): padding: 100px 64px 300px 64px. Bottom margin MUST be at least 290px for multi-line subtitles.
+- Landscape (16:9 1920x1080): padding: 72px 96px 220px 96px. Bottom margin MUST be at least 220px to prevent overlap with Karaoke Captions.
+- Portrait (9:16 1080x1920): padding: 100px 64px 340px 64px. Bottom margin MUST be at least 340px for multi-line subtitles.
 - Ensure all diagrams, text, and icons stay within the safe bounds.
+
+### TYPOGRAPHY & CONTRAST RULES
+1. ZERO TEXT OVERLAPS: Ensure every text label has distinct Y coordinates (minimum 32px vertical separation).
+2. HIGH CONTRAST BADGES: Use solid deep dark backgrounds ('#090D16' or '#0F172A') for pill badges with crisp '#FFFFFF' or vivid text (never use pastel text on translucent gray).
+3. SANS-SERIF FONT: Explicitly declare fontFamily="Inter, system-ui, -apple-system, sans-serif" on the root and on SVG <text> elements. Never let SVG text fall back to browser serif fonts.
 
 OUTPUT ONLY THE RAW TSX CODE SNIPPET (NO SURROUNDING MARKDOWN FENCES, NO COMMENTARY).
 `;

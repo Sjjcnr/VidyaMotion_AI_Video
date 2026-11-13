@@ -1,5 +1,35 @@
 # VidyaMotion AI - Project Status & Roadmap
 
+## Phase F: Video Quality, Anti-Collision & Contrast Overhaul
+
+### Status: COMPLETED & VERIFIED
+
+### 1. Requirements & User Directives Addressed
+Diagnosed and resolved the 5 core video generation issues identified from inspecting user-uploaded MP4 exports:
+- **Zero Text & Graphic Collisions**:
+  - Root cause: In SVG diagrams and multi-tier components, text elements shared identical or overlapping Y coordinates (e.g. skin layers colliding with Melanin labels; BST invariant banner colliding with leaf nodes).
+  - Fix: Enforced minimum 32px vertical separation across all SVG text tiers and adjusted viewBoxes from `700x380` to `720x400`/`720x390` with proper Y coordinates for leaf nodes, comparison cards, and callout banners.
+- **Mandatory Safe Bottom Margin for Subtitles**:
+  - Root cause: Bottom banners and summary cards extended into the lower 150px of the canvas, where Karaoke Subtitles overlay at `bottom: 40px` (landscape) or `bottom: 108px` (portrait).
+  - Fix: Standardized bottom clearance across all presets and generation prompts: landscape container padding bottom set to at least 210px–220px (`y <= 860px` in 1080p); portrait padding bottom set to at least 320px–340px (`y <= 1560px` in 1920p).
+- **High-Contrast WCAG AAA Badges**:
+  - Root cause: `fill="rgba(0,0,0,0.4)"` on light surface cards produced muddy gray boxes (`#666666`), yielding an illegible contrast ratio (~1.8:1) when paired with cyan or emerald text.
+  - Fix: Replaced all translucent gray pill boxes with solid deep slate/obsidian containers (`#090D16` / `#0F172A`) paired with bright white (`#FFFFFF`), bright cyan (`#38BDF8`), or emerald (`#A7F3D0`) text, guaranteeing >10:1 WCAG AAA contrast ratio.
+- **Global Sans-Serif Font Enforcement**:
+  - Root cause: SVG `<text>` elements without explicit inline font families fall back to the browser default Serif / Times New Roman font.
+  - Fix: Injected a global CSS `<style>` override in both `VideoComposition.tsx` and `DynamicSceneRunner.tsx`: `svg text, svg tspan { font-family: ${fontFamily}, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }`. Also injected `fontFamily: "Inter, system-ui, sans-serif"` directly into scene root wrappers.
+- **System Prompt & Few-Shot Prompt Upgrades**:
+  - Updated `api/_lib/gemini.ts` (`STAGE2_SYSTEM_PROMPT` and `buildSceneCodeUserPrompt`) with Rules 7, 8, 9, and 10 to ensure all newly generated AI scenes strictly adhere to zero overlap, subtitle clearance, high-contrast badges, and modern sans-serif typography.
+  - Synchronized `src/remotion/reference/sceneDesignGuide.ts` with the new design and contrast rules.
+
+### 2. Verification Evidence
+- `npm run typecheck`: Passed with 0 errors (`tsc --noEmit`).
+- `npm run build`: Passed cleanly in 2.22s.
+- Bundle Secret Scan: Verified 0 keys in `dist/assets/*.js`.
+- All showcase presets (`bst-1-hero`, `bst-2-rule`, `bst-3-flow`, `bst-4-summary`, `photo-3-process`, `rocket-3-stages`) updated and validated.
+
+---
+
 ## Phase E: World-Class Frontend & Modern SaaS UI Overhaul (Linear / Raycast Aesthetic)
 
 ### Status: COMPLETED & VERIFIED
