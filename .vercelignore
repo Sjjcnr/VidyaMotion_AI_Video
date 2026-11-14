@@ -1,0 +1,10 @@
+# Vercel Ignore
+node_modules/
+dist/
+scratch/
+scripts/
+*.mp4
+*.png
+*.jpg
+*.log
+.git/
