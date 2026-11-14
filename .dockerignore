@@ -1,0 +1,12 @@
+.env
+.env.*
+node_modules
+dist
+scratch
+scripts
+.git
+.vercel
+*.log
+*.mp4
+*.png
+*.jpg
