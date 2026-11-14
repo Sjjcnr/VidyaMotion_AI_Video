@@ -9,3 +9,4 @@ render-service/
 *.jpg
 *.log
 .git/
+.azure/

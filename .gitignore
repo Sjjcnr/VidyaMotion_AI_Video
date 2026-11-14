@@ -1,21 +1,30 @@
 # Dependencies
 node_modules/
 
-# Build output
+# Build & export output
 dist/
+out/
 
-# Vercel local config & build output
+# Cloud CLI config & local metadata
 .vercel/
+.vercel
+.azure/
 
 # Environment variables (NEVER commit secrets)
 .env
 .env.*
 !.env.example
 
+# Temporary video & audio export artifacts
+*.mp4
+*.webm
+*.mov
+*.wav
+
 # TypeScript incremental build info
 *.tsbuildinfo
 
-# OS / Editor / Logs
+# OS / Editor / Logs / Scratch
 .DS_Store
 Thumbs.db
 *.log
@@ -23,5 +32,3 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 scratch/
-
-.vercel

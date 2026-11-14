@@ -6,6 +6,7 @@ scratch
 scripts
 .git
 .vercel
+.azure
 *.log
 *.mp4
 *.png

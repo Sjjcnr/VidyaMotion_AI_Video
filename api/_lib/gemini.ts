@@ -558,7 +558,9 @@ function redactSecrets(text: string, secrets: readonly string[]): string {
       sanitized = sanitized.split(secret).join("[REDACTED]");
     }
   }
-  return sanitized.replace(/AIza[0-9A-Za-z_-]{16,}/g, "[REDACTED_KEY]");
+  return sanitized
+    .replace(/AIza[0-9A-Za-z_-]{16,}/g, "[REDACTED_KEY]")
+    .replace(/AQ\.[0-9A-Za-z_-]{16,}/g, "[REDACTED_KEY]");
 }
 
 function extractApiErrorInfo(error: unknown): {

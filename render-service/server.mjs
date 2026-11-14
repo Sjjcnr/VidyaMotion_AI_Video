@@ -34,10 +34,11 @@ async function getOrCreateBundle() {
   }
 
   bundlingPromise = (async () => {
-    console.log('📦 Bundling Remotion composition from src/remotion/Root.tsx...');
+    console.log('📦 Bundling Remotion composition from entry.ts...');
     const start = Date.now();
     cachedBundle = await bundle({
-      entryPoint: path.resolve('./src/remotion/Root.tsx'),
+      entryPoint: path.resolve('./entry.ts'),
+      publicDir: path.resolve('./public'),
     });
     console.log(`✅ Remotion bundled in ${((Date.now() - start) / 1000).toFixed(1)}s at ${cachedBundle}`);
     return cachedBundle;

@@ -38,9 +38,11 @@ COPY render-service/package.json ./
 RUN npm install --omit=dev
 
 # Copy application source code and Remotion compositions
+COPY tsconfig.json* ./
 COPY src ./src
 COPY public ./public
 COPY render-service/server.mjs ./server.mjs
+COPY render-service/entry.ts ./entry.ts
 
 EXPOSE 8080
 

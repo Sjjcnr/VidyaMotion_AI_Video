@@ -1,12 +1,32 @@
 import { Audio } from "@remotion/media";
 import React from "react";
-import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
+import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
 import { DynamicSceneRunner } from "./components/DynamicSceneRunner";
 import { KaraokeCaptionsOverlay } from "./components/KaraokeCaptionsOverlay";
 import { SceneBackground } from "./components/SceneBackground";
 import { getFontFamilyForLanguage, useProjectFonts } from "./fonts";
 import type { VideoProject } from "./types";
 import { getThemePalette } from "./utils/themeStyles";
+
+function resolveAudioSrc(src?: string): string | null {
+  if (!src) return null;
+  const trimmed = src.trim();
+  if (!trimmed) return null;
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:")
+  ) {
+    return trimmed;
+  }
+  try {
+    const cleanPath = trimmed.startsWith("/") ? trimmed.slice(1) : trimmed;
+    return staticFile(cleanPath);
+  } catch {
+    return trimmed;
+  }
+}
 
 export const VideoComposition: React.FC<VideoProject> = (project) => {
   useProjectFonts();
@@ -60,7 +80,7 @@ export const VideoComposition: React.FC<VideoProject> = (project) => {
       `}</style>
       {timeline.map(({ scene, from, durationInFrames }, index) => {
         const scenePalette = getThemePalette(themeId, scene.accentColor);
-        const audioSrc = scene.audioUrl?.trim();
+        const audioSrc = resolveAudioSrc(scene.audioUrl);
 
         return (
           <Sequence

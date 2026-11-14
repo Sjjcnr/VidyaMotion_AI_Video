@@ -4,7 +4,7 @@
 > **Target Event:** Tech Expo 2027 – *Innovating for Bharat @ 2047*, Parul University  
 > **Track:** `Digital India & Smart Technologies`  
 > **Core Stack:** React 19 / TypeScript / Vite / Tailwind CSS / Remotion (`@remotion/player`, `@remotion/captions`) / Gemini API (3.8 Flash with model fallback chain) / Edge-TTS  
-> **Output Location:** `C:\Users\91638\OneDrive\Desktop\Antigravity\Topic2video`
+> **Output Location:** `Topic2video` (project root)
 
 ---
 
@@ -374,4 +374,4 @@ npm run dev
 
 ---
 
-*Document generated and saved to [`C:\Users\91638\OneDrive\Desktop\Antigravity\Topic2video\PROMPT.md`](file:///C:/Users/91638/OneDrive/Desktop/Antigravity/Topic2video/PROMPT.md)*
+*Document generated and saved to [`PROMPT.md`](PROMPT.md)*

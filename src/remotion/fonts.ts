@@ -1,6 +1,6 @@
 import { loadFont, type LoadFontOptions } from "@remotion/fonts";
 import { useEffect, useState } from "react";
-import { cancelRender, continueRender, delayRender, useDelayRender } from "remotion";
+import { continueRender, delayRender, staticFile, useDelayRender } from "remotion";
 import type { LanguageCode } from "./types";
 
 export const FONT_FAMILY_INTER = "Inter";
@@ -104,10 +104,14 @@ const BUNDLED_FONTS: readonly BundledFontSpec[] = [
 ];
 
 function resolveFontUrl(fileName: string): string {
-  const env = (import.meta as ImportMeta & { env?: { BASE_URL?: string } }).env;
-  const rawBase = env?.BASE_URL ?? "/";
-  const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
-  return `${base}fonts/${fileName}`;
+  try {
+    return staticFile(`fonts/${fileName}`);
+  } catch {
+    const env = (import.meta as ImportMeta & { env?: { BASE_URL?: string } }).env;
+    const rawBase = env?.BASE_URL ?? "/";
+    const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+    return `${base}fonts/${fileName}`;
+  }
 }
 
 let fontsPromise: Promise<void> | null = null;
@@ -133,20 +137,26 @@ export function loadProjectFonts(): Promise<void> {
         ...options,
         url: resolveFontUrl(fileName),
         display: "block",
+      }).catch((err) => {
+        console.warn(`[fonts] Non-critical font loading warning for ${fileName}:`, err);
       })
     )
   )
     .then(async () => {
       if (typeof document !== "undefined" && document.fonts) {
-        await document.fonts.ready;
+        try {
+          await document.fonts.ready;
+        } catch {
+          // ignore font readiness error
+        }
       }
       fontsLoaded = true;
       continueRender(handle);
     })
     .catch((err) => {
-      fontsPromise = null;
-      cancelRender(err);
-      throw err;
+      console.warn("[fonts] Error loading fonts, falling back to system fonts:", err);
+      fontsLoaded = true;
+      continueRender(handle);
     });
 
   return fontsPromise;
@@ -158,7 +168,7 @@ export function loadProjectFonts(): Promise<void> {
  */
 export function useProjectFonts(): boolean {
   const [ready, setReady] = useState<boolean>(fontsLoaded);
-  const { delayRender: delayScopedRender, continueRender: continueScopedRender, cancelRender: cancelScopedRender } =
+  const { delayRender: delayScopedRender, continueRender: continueScopedRender } =
     useDelayRender();
 
   useEffect(() => {
@@ -178,13 +188,17 @@ export function useProjectFonts(): boolean {
         continueScopedRender(handle);
       })
       .catch((err) => {
-        cancelScopedRender(err);
+        console.warn("[fonts] useProjectFonts fallback:", err);
+        if (!cancelled) {
+          setReady(true);
+        }
+        continueScopedRender(handle);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [cancelScopedRender, continueScopedRender, delayScopedRender]);
+  }, [continueScopedRender, delayScopedRender]);
 
   return ready;
 }
