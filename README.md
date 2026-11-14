@@ -69,29 +69,29 @@ sequenceDiagram
 
     User->>API: POST /api/generate-script (topic, lang, theme)
     API->>Gemini: Generate Structured Plan (JSON Schema)
-    Gemini-->>API: 3-6 Scenes (heading, narration, visualBrief)
+    Gemini-->>API: 3 to 6 Scenes with narration and visualBrief
     API-->>User: VideoProjectPlan
 
     par Parallel Generation per Scene
         User->>API: POST /api/generate-speech (narration text)
         API->>EdgeTTS: WebSocket synthesize audio
-        EdgeTTS-->>API: MP3 stream + word boundaries
-        API-->>User: data:audio/mpeg;base64 + CaptionWord[]
+        EdgeTTS-->>API: MP3 stream and word boundaries
+        API-->>User: Base64 MP3 audio and CaptionWord timestamps
     and
         User->>API: POST /api/generate-scene-code (scene spec)
-        API->>Gemini: Generate Remotion TSX code (200-450+ lines)
-        Gemini-->>API: Raw TSX Code string
+        API->>Gemini: Generate Remotion TSX code (200 to 450 lines)
+        Gemini-->>API: Raw TSX code string
         API-->>User: Validated Scene Code
     end
 
-    User->>User: Transpile TSX via Sucrase & Mount Remotion Composition
+    User->>User: Transpile TSX via Sucrase and mount composition
 
     alt Cloud Export (VITE_RENDER_API_URL configured)
-        User->>ACA: POST /api/render { project, resolution }
-        Note over ACA: Wakes from 0 replicas, bundles entry.ts,<br/>renders frames in parallel with Headless Chromium
-        ACA-->>User: Stream binary video/mp4 (Content-Disposition: attachment)
+        User->>ACA: POST /api/render (project payload, resolution)
+        Note over ACA: Wakes from 0 replicas, bundles entry.ts,<br/>and renders frames in parallel with Headless Chromium
+        ACA-->>User: Stream binary MP4 video download
     else Browser Export (Default Fallback)
-        User->>User: renderMediaOnWeb() using WebCodecs (Client-side MP4 blob)
+        User->>User: renderMediaOnWeb using WebCodecs (Client MP4 blob)
     end
 ```
 
