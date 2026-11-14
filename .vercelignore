@@ -3,6 +3,7 @@ node_modules/
 dist/
 scratch/
 scripts/
+render-service/
 *.mp4
 *.png
 *.jpg

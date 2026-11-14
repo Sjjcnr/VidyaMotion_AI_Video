@@ -152,6 +152,54 @@ export function useVideoExport(): VideoExportState {
             project.scenes.reduce((sum, s) => sum + s.durationInFrames, 0)
         );
 
+        // Check for dedicated Cloud Render Worker (Azure Container Apps)
+        const renderApiUrl =
+          (typeof window !== "undefined" &&
+            (window as unknown as { __VIDYAMOTION_RENDER_URL__?: string })
+              .__VIDYAMOTION_RENDER_URL__) ||
+          import.meta.env.VITE_RENDER_API_URL;
+
+        if (renderApiUrl) {
+          try {
+            console.log(`[useVideoExport] Dispatching to Cloud Render Engine: ${renderApiUrl}`);
+            const cloudResp = await fetch(
+              `${renderApiUrl.replace(/\/$/, "")}/api/render`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ project, resolution }),
+                signal: controller.signal,
+              }
+            );
+
+            if (cloudResp.ok) {
+              const blob = await cloudResp.blob();
+              const blobUrl = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = blobUrl;
+              a.download = `${project.id || "vidyamotion"}-${resolution}.mp4`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(blobUrl);
+              setExportProgress(100);
+              return;
+            } else {
+              console.warn(
+                `[useVideoExport] Cloud render returned status ${cloudResp.status}, falling back to browser render.`
+              );
+            }
+          } catch (cloudErr) {
+            if (controller.signal.aborted) {
+              return;
+            }
+            console.warn(
+              "[useVideoExport] Cloud render error, falling back to client-side WebCodecs render:",
+              cloudErr
+            );
+          }
+        }
+
         // Render client-side video with chosen resolution scale
         const renderResult = await renderMediaOnWeb({
           composition: {
